@@ -1,20 +1,11 @@
-#include <windows.h>
-#include <d3d12.h>							//Dx12本体
-#include <dxgi1_6.h>						//Factory,SwapChain
-#include <d3dcompiler.h>					//シェーダーのコンパイル
-#include <wrl.h>							//ComPtr
-
-#pragma comment(lib, "d3d12.lib")			//Dx12本体
-#pragma comment(lib, "dxgi.lib")			//Factory,SwapChain
-#pragma comment(lib, "d3dcompiler.lib")		//シェーダーのコンパイル
-
-using Microsoft::WRL::ComPtr;
+#include "Common.h"
+#include "OS/Window.h"
 
 const UINT WINDOW_WIDTH = 1280;				//描画幅
 const UINT WINDOW_HEIGHT = 720;				//描画高さ
 const UINT FRAME_COUNT = 2;					//バックバッファ数
 
-HWND g_hwnd = nullptr;						//ウィンドウハンドル
+HWND g_hwnd = nullptr;						//仮:SwapChain分離まで
 
 ComPtr<IDXGIFactory4> g_factory;						//DXGI工場
 ComPtr<ID3D12Device> g_device;							//GPUの窓口
@@ -43,19 +34,8 @@ struct Vertex								//頂点1個
 	float color[4];							//rgba
 };
 
-
-//HRESULTが失敗のときによびだす関数
-inline void CheckHR(HRESULT hr)				//失敗なら停止
-{
-	if (FAILED(hr))
-	{
-		MessageBoxA(nullptr, "HRESULT failed", "Error", MB_OK);
-		__debugbreak();
-	}
-}
-
 //GPUの仕事が終わるまでCPUを待機させる
-void WaitForGPU()							//GPUの完了を待つ
+void WaitForGPU()
 {
 	const UINT64 value = g_fenceValue;
 	CheckHR(g_commandQueue->Signal(g_fence.Get(), value));	//終わったらvalueにして
@@ -70,8 +50,8 @@ void WaitForGPU()							//GPUの完了を待つ
 	g_frameIndex = g_swapChain->GetCurrentBackBufferIndex();	//次のバッファ
 }
 
-//DX12の初期化関数
-void InitD3D()								//DX12初期化
+//DX12の初期化
+void InitD3D()
 {
 	//デバッグレイヤー
 	UINT factoryFlags = 0;
@@ -92,7 +72,7 @@ void InitD3D()								//DX12初期化
 
 	//CommandQueue
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;	
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	CheckHR(g_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&g_commandQueue)));
 
@@ -145,8 +125,8 @@ void InitD3D()								//DX12初期化
 	CheckHR(g_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
 		g_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&g_commandList)));
 
-	//2-14 すぐ閉じる
-	CheckHR(g_commandList->Close());	
+	//すぐ閉じる
+	CheckHR(g_commandList->Close());
 
 	//Fence
 	CheckHR(g_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&g_fence)));
@@ -161,18 +141,6 @@ void InitD3D()								//DX12初期化
 
 	//動作確認として1回待つ
 	WaitForGPU();
-}
-
-//ウェン道への通知これから閉じると処理
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)	//メッセージ処理
-{
-	switch (msg)
-	{
-	case WM_DESTROY:						//ウィンドウ破棄
-		PostQuitMessage(0);					//WM_QUITを送る
-		return 0;
-	}
-	return DefWindowProc(hwnd, msg, wp, lp);	//既定処理
 }
 
 //シェーダーをコンパイル
@@ -296,15 +264,14 @@ void InitAssets()
 	g_scissorRect = { 0, 0, (LONG)WINDOW_WIDTH, (LONG)WINDOW_HEIGHT };
 }
 
-
-//描画関数
-void Render()						
+//描画
+void Render()
 {
 	CheckHR(g_commandAllocator->Reset());	//前フレームの命令を破棄
-	CheckHR(g_commandList->Reset(g_commandAllocator.Get(), g_pipelineState.Get()));	
-	g_commandList->SetGraphicsRootSignature(g_rootSignature.Get());					
-	g_commandList->RSSetViewports(1, &g_viewport);			
-	g_commandList->RSSetScissorRects(1, &g_scissorRect);	
+	CheckHR(g_commandList->Reset(g_commandAllocator.Get(), g_pipelineState.Get()));
+	g_commandList->SetGraphicsRootSignature(g_rootSignature.Get());
+	g_commandList->RSSetViewports(1, &g_viewport);
+	g_commandList->RSSetScissorRects(1, &g_scissorRect);
 
 	//バリア 表示用→描画先
 	D3D12_RESOURCE_BARRIER barrier = {};
@@ -325,12 +292,10 @@ void Render()
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };			//RGBA
 	g_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
-
-	//三角形を描画																	
+	//三角形を描画
 	g_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);	//3頂点で1三角形
-	g_commandList->IASetVertexBuffers(0, 1, &g_vertexBufferView);					
+	g_commandList->IASetVertexBuffers(0, 1, &g_vertexBufferView);
 	g_commandList->DrawInstanced(3, 1, 0, 0);				//3頂点1個
-
 
 	//バリア 描画先→表示用
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -351,56 +316,25 @@ void Render()
 	WaitForGPU();
 }
 
-
 //ここから始まる
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	//クラス登録
-	WNDCLASSEX wc = {};
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;		//サイズ変更時に再描画
-	wc.lpfnWndProc = WndProc;				//メッセージ処理関数
-	wc.hInstance = hInstance;
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);	//矢印カーソル
-	wc.lpszClassName = L"RNEngineWindow";
-	RegisterClassEx(&wc);
-
-	//サイズ計算
-	RECT rect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
-	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);	//枠分を加算
-
-	//作成・表示
-	g_hwnd = CreateWindow(
-		wc.lpszClassName,
-		L"RNEngine",						//タイトル
-		WS_OVERLAPPEDWINDOW,				//通常ウィンドウ
-		CW_USEDEFAULT, CW_USEDEFAULT,		//位置はOS任せ
-		rect.right - rect.left,				//幅(枠込み)
-		rect.bottom - rect.top,				//高さ(枠込み)
-		nullptr, nullptr, hInstance, nullptr);
+	Window window;
+	window.Init(hInstance, WINDOW_WIDTH, WINDOW_HEIGHT, L"RNEngine");
+	g_hwnd = window.GetHwnd();				//仮:SwapChain分離まで
 
 	InitD3D();								//DX12初期化(hwnd作成後)
-
 	InitAssets();
 
-	ShowWindow(g_hwnd, nCmdShow);
+	window.Show(nCmdShow);
 
-	//メッセージループ
-	MSG msg = {};
-	while (msg.message != WM_QUIT)
+	//メインループ
+	while (window.ProcessMessages())		//falseで終了
 	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))	//メッセージあり
-		{
-			TranslateMessage(&msg);			//キー入力変換
-			DispatchMessage(&msg);			//WndProcへ送る
-		}
-		else
-		{
-			Render();
-		}
+		Render();
 	}
 
-	//6 終了処理
+	//終了処理
 	WaitForGPU();							//GPU完了後に破棄
 	CloseHandle(g_fenceEvent);
 
