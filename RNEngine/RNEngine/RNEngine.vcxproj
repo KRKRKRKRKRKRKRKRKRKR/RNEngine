@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GPU\GraphicsDevice.cpp" />
+    <ClCompile Include="GPU\SwapChain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OS\Window.cpp" />
   </ItemGroup>
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
+    <ClInclude Include="GPU\SwapChain.h" />
     <ClInclude Include="OS\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

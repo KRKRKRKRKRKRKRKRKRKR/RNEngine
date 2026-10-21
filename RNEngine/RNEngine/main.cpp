@@ -1,18 +1,10 @@
 #include "Common.h"
 #include "OS/Window.h"
 #include "GPU/GraphicsDevice.h"
+#include "GPU/SwapChain.h"
 
 const UINT WINDOW_WIDTH = 1280;				//描画幅
 const UINT WINDOW_HEIGHT = 720;				//描画高さ
-const UINT FRAME_COUNT = 2;					//バックバッファ数
-
-HWND g_hwnd = nullptr;						//仮:SwapChain分離まで
-
-ComPtr<IDXGISwapChain3> g_swapChain;					//画面バッファ管理
-UINT g_frameIndex = 0;									//今描くバッファ番号
-ComPtr<ID3D12DescriptorHeap> g_rtvHeap;					//RTVの配列
-UINT g_rtvDescriptorSize = 0;							//RTV1個のサイズ
-ComPtr<ID3D12Resource> g_renderTargets[FRAME_COUNT];	//バックバッファ
 
 ComPtr<ID3D12RootSignature> g_rootSignature;			//シェーダー入力の一覧
 ComPtr<ID3D12PipelineState> g_pipelineState;			//描画設定一式
@@ -26,52 +18,6 @@ struct Vertex								//頂点1個
 	float position[3];						//xyz
 	float color[4];							//rgba
 };
-
-//SwapChainとRTVの初期化
-void InitSwapChain(GraphicsDevice& gfx)
-{
-	//SwapChain設定
-	DXGI_SWAP_CHAIN_DESC1 scDesc = {};
-	scDesc.Width = WINDOW_WIDTH;
-	scDesc.Height = WINDOW_HEIGHT;
-	scDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;			//RGBA各8bit
-	scDesc.SampleDesc.Count = 1;							//MSAAなし
-	scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	//描画先として使用
-	scDesc.BufferCount = FRAME_COUNT;						//表と裏
-	scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;		//DX12推奨方式
-
-	//SwapChain作成
-	ComPtr<IDXGISwapChain1> swapChain1;
-	CheckHR(gfx.GetFactory()->CreateSwapChainForHwnd(
-		gfx.GetCommandQueue(),				//Deviceではなく Queue
-		g_hwnd, &scDesc, nullptr, nullptr, &swapChain1));
-	CheckHR(gfx.GetFactory()->MakeWindowAssociation(g_hwnd, DXGI_MWA_NO_ALT_ENTER));	//Alt+Enter無効
-
-	//SwapChain3へ変換
-	CheckHR(swapChain1.As(&g_swapChain));
-
-	//現在のバッファ番号
-	g_frameIndex = g_swapChain->GetCurrentBackBufferIndex();
-
-	//RTVヒープ
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	heapDesc.NumDescriptors = FRAME_COUNT;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	CheckHR(gfx.GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&g_rtvHeap)));
-
-	//RTV1個のサイズ
-	g_rtvDescriptorSize = gfx.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-	//バッファ取得+RTV作成
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = g_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	for (UINT i = 0; i < FRAME_COUNT; i++)
-	{
-		CheckHR(g_swapChain->GetBuffer(i, IID_PPV_ARGS(&g_renderTargets[i])));
-		gfx.GetDevice()->CreateRenderTargetView(g_renderTargets[i].Get(), nullptr, rtvHandle);
-		rtvHandle.ptr += g_rtvDescriptorSize;	//次の枠へ
-	}
-}
 
 //シェーダーをコンパイル
 ComPtr<ID3DBlob> CompileShader(const wchar_t* file, const char* entry, const char* target)
@@ -91,7 +37,7 @@ ComPtr<ID3DBlob> CompileShader(const wchar_t* file, const char* entry, const cha
 }
 
 //描画に使う資源の初期化
-void InitAssets(GraphicsDevice& gfx)
+void InitAssets(GraphicsDevice& gfx, DXGI_FORMAT rtvFormat)
 {
 	ID3D12Device* device = gfx.GetDevice();
 
@@ -127,7 +73,7 @@ void InitAssets(GraphicsDevice& gfx)
 	psoDesc.InputLayout = { inputLayout, _countof(inputLayout) };
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;	//SwapChainと一致
+	psoDesc.RTVFormats[0] = rtvFormat;					//SwapChainと一致
 	psoDesc.SampleDesc.Count = 1;
 	psoDesc.SampleMask = UINT_MAX;
 
@@ -197,7 +143,7 @@ void InitAssets(GraphicsDevice& gfx)
 }
 
 //描画
-void Render(GraphicsDevice& gfx)
+void Render(GraphicsDevice& gfx, SwapChain& swapChain)
 {
 	gfx.ResetCommandList(g_pipelineState.Get());		//記録開始
 	ID3D12GraphicsCommandList* cmd = gfx.GetCommandList();
@@ -210,17 +156,14 @@ void Render(GraphicsDevice& gfx)
 	D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = g_renderTargets[g_frameIndex].Get();
+	barrier.Transition.pResource = swapChain.GetCurrentBuffer();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	cmd->ResourceBarrier(1, &barrier);
 
-	//今のバッファのRTV
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = g_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvHandle.ptr += g_frameIndex * g_rtvDescriptorSize;	//frameIndex番目へ
-
 	//描画先セット+クリア
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = swapChain.GetCurrentRTV();
 	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);	//深度なし
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };	//RGBA
 	cmd->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
@@ -236,11 +179,8 @@ void Render(GraphicsDevice& gfx)
 	cmd->ResourceBarrier(1, &barrier);
 
 	gfx.ExecuteCommandList();				//記録終了+GPUへ送信
-
-	CheckHR(g_swapChain->Present(1, 0));	//画面に表示 1=VSync待ち
-
+	swapChain.Present();					//画面に表示+次のバッファへ
 	gfx.WaitForGPU();						//GPU完了待ち
-	g_frameIndex = g_swapChain->GetCurrentBackBufferIndex();	//次のバッファ
 }
 
 //ここから始まる
@@ -248,20 +188,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	Window window;
 	window.Init(hInstance, WINDOW_WIDTH, WINDOW_HEIGHT, L"RNEngine");
-	g_hwnd = window.GetHwnd();				//仮:SwapChain分離まで
 
-	GraphicsDevice gfx;
+	GraphicsDevice gfx;						//swapChainより先に宣言(後に破棄)
 	gfx.Init();								//Device・Queue・Fence
-	InitSwapChain(gfx);						//SwapChain・RTV
-	InitAssets(gfx);						//PSO・頂点バッファ
+
+	SwapChain swapChain;
+	swapChain.Init(gfx, window.GetHwnd(), WINDOW_WIDTH, WINDOW_HEIGHT);	//SwapChain・RTV
+
+	InitAssets(gfx, swapChain.GetFormat());	//PSO・頂点バッファ
 
 	window.Show(nCmdShow);
 
 	//メインループ
 	while (window.ProcessMessages())		//falseで終了
 	{
-		Render(gfx);
+		Render(gfx, swapChain);
 	}
 
-	return 0;								//gfxのデストラクタでGPU待ち+解放
+	return 0;								//破棄は宣言と逆順(swapChain→gfx→window)
 }
