@@ -145,6 +145,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GPU\GraphicsDevice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OS\Window.cpp" />
   </ItemGroup>
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="OS\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
