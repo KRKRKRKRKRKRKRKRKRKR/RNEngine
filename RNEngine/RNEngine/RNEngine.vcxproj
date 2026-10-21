@@ -145,6 +145,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Application.cpp" />
     <ClCompile Include="GPU\GraphicsDevice.cpp" />
     <ClCompile Include="GPU\SwapChain.cpp" />
     <ClCompile Include="main.cpp" />
@@ -164,6 +165,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Application.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="GPU\SwapChain.h" />
