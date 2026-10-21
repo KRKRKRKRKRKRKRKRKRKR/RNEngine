@@ -162,6 +162,52 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)	//メッセ�
 	return DefWindowProc(hwnd, msg, wp, lp);	//既定処理
 }
 
+//描画関数
+void Render()								//画面クリア
+{
+	//記録開始
+	CheckHR(g_commandAllocator->Reset());	//前フレームの命令を破棄
+	CheckHR(g_commandList->Reset(g_commandAllocator.Get(), nullptr));
+
+	//バリア 表示用→描画先
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = g_renderTargets[g_frameIndex].Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	g_commandList->ResourceBarrier(1, &barrier);
+
+	//今のバッファのRTV
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = g_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvHandle.ptr += g_frameIndex * g_rtvDescriptorSize;	//frameIndex番目へ
+
+	//描画先セット+クリア
+	g_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);	//深度なし
+	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };			//RGBA
+	g_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+
+	//バリア 描画先→表示用
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	g_commandList->ResourceBarrier(1, &barrier);
+
+	//記録終了
+	CheckHR(g_commandList->Close());
+
+	//GPUへ送信
+	ID3D12CommandList* lists[] = { g_commandList.Get() };
+	g_commandQueue->ExecuteCommandLists(1, lists);
+
+	//画面に表示
+	CheckHR(g_swapChain->Present(1, 0));	//1=VSync待ち
+
+	//GPU完了待ち
+	WaitForGPU();
+}
+
+
 //ここから始まる
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -204,7 +250,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		else
 		{
-			//ここで毎フレーム描画(Phase3以降)
+			Render();
 		}
 	}
 
