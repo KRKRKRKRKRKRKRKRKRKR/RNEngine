@@ -4,3 +4,8 @@ Debug/
 Release/
 *.user
 *.lnk
+imgui.ini
+/.obsidian/
+Docs/.obsidian/.obsidian/
+Docs/.obsidian/workspace*.json
+Docs/.trash/
