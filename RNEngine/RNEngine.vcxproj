@@ -177,6 +177,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="GPU\SwapChain.h" />
+    <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="UI\ImGuiLayer.h" />
     <ClInclude Include="OS\Window.h" />
     <ClInclude Include="Renderer\Mesh.h" />

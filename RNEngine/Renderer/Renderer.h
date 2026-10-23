@@ -5,6 +5,7 @@
 #include "Renderer/Pipeline.h"
 #include "Renderer/Mesh.h"
 #include "UI/ImGuiLayer.h"
+#include "Math/Transform.h"
 //何をどう描くか指示する
 class Renderer
 {
@@ -13,7 +14,7 @@ public:
 
 	void Init(HWND hwnd, UINT width, UINT height);
 	void BeginFrame();									//記録開始+画面クリア
-	void Draw(const Pipeline& pipeline, const Mesh& mesh);	//描画命令を追加
+	void Draw(const Pipeline& pipeline, const Mesh& mesh, const Transform& transform);	//描画命令を追加	
 	void EndFrame();									//送信+表示+GPU待ち
 	void BeginUI();										//UI記録開始
 	void EndUI();

@@ -31,8 +31,17 @@ void Application::Run()
 void Application::Draw()
 {
 	m_renderer.BeginFrame();
-	m_renderer.Draw(m_pipeline, m_triangle);	//三角形
+	m_renderer.Draw(m_pipeline, m_triangle, m_triangleTransform);	//三角形
 	m_renderer.BeginUI();
+	ImGui::Begin("Triangle");
+	ImGui::DragFloat3("Position", &m_triangleTransform.position.x, 0.01f);
+	ImGui::DragFloat3("Rotation", &m_triangleTransform.rotation.x, 0.5f);
+	ImGui::DragFloat3("Scale", &m_triangleTransform.scale.x, 0.01f);
+	if (ImGui::Button("Reset"))
+	{
+		m_triangleTransform = Transform();	//初期値に戻す
+	}
+	ImGui::End();
 	ImGui::ShowDemoWindow();					//動作確認用
 	m_renderer.EndUI();
 	m_renderer.EndFrame();

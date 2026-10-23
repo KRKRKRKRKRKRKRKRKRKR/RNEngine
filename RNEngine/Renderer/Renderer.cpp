@@ -34,10 +34,15 @@ void Renderer::BeginFrame()
 	cmd->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 }
 
-void Renderer::Draw(const Pipeline& pipeline, const Mesh& mesh)
+void Renderer::Draw(const Pipeline& pipeline, const Mesh& mesh, const Transform& transform)
 {
 	ID3D12GraphicsCommandList* cmd = m_gfx.GetCommandList();
-	pipeline.Set(cmd);						//描き方
+	pipeline.Set(cmd);						//描き方(先にルートシグネチャを設定)
+
+	DirectX::XMFLOAT4X4 world;
+	DirectX::XMStoreFloat4x4(&world, transform.GetWorldMatrix());	//計算用→保存用
+	cmd->SetGraphicsRoot32BitConstants(0, 16, &world, 0);			//b0へ16個
+
 	mesh.Draw(cmd);							//形
 }
 

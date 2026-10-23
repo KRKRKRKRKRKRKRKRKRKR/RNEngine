@@ -2,7 +2,7 @@
 #include "Common.h"
 #include "OS/Window.h"
 #include "Renderer/Renderer.h"
-
+#include  "Math/Transform.h"
 //アプリの流れ(初期化→ループ→終了)を回す
 class Application
 {
@@ -20,4 +20,5 @@ private:
 	Renderer m_renderer;
 	Pipeline m_pipeline;
 	Mesh m_triangle;
+	Transform m_triangleTransform;
 };

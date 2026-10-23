@@ -4,15 +4,16 @@
 「何を・どう描くか」は外から受け取る(`Draw(pipeline, mesh)`)。
 
 ## 持つもの
-[[GraphicsDevice]] / [[SwapChain]] / Viewport / ScissorRect
+[[GraphicsDevice]] / [[SwapChain]] / [[ImGuiLayer]] / Viewport / ScissorRect
 - `m_gfx`を先に宣言 → 破棄は逆順なので後に破棄される
+- `m_imgui`を最後に宣言 → 最初に破棄される
 
 ## 流れ
-`BeginFrame` → `Draw`(複数可) → `EndFrame`
+`BeginFrame` → `Draw`(複数可) → `BeginUI` → ImGui呼び出し → `EndUI` → `EndFrame`
 
 ## 関数
 - `~Renderer`：`WaitForGPU`してから破棄(GPU使用中のメンバを壊さない)
-- `Init`：GraphicsDevice初期化 → SwapChain初期化 → Viewport/Scissor設定
+- `Init`：GraphicsDevice初期化 → SwapChain初期化 → Viewport/Scissor設定 → ImGuiLayer初期化
 - `BeginFrame`：
   1. `ResetCommandList`で記録開始
   2. Viewport・Scissorセット
@@ -20,6 +21,7 @@
   4. `OMSetRenderTargets`で描画先セット
   5. `ClearRenderTargetView`で紺色クリア
 - `Draw`：`pipeline.Set(cmd)`(描き方) → `mesh.Draw(cmd)`(形)
+- `BeginUI` / `EndUI`：ImGuiの`BeginFrame` / `Render`を呼ぶ。間にImGuiの呼び出しを挟む
 - `EndFrame`：
   1. `Transition`：描画先→表示用
   2. `ExecuteCommandList`でGPUへ送信
@@ -29,5 +31,4 @@
 - `GetDevice` / `GetFormat`：Pipeline・Mesh初期化用に外へ渡す
 
 ## 課題
-- `Renderer.cpp`が2つある(旧ファイル`RNEngine\Renderer.cpp`)。二重定義に注意
 - `EndFrame`で毎フレーム`WaitForGPU` → CPUとGPUが並列に動けない

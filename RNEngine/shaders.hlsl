@@ -10,10 +10,15 @@ struct PSInput								//ピクセルシェーダー入力
     float4 color : COLOR;
 };
 
+cbuffer Transform : register(b0) //ルート定数
+{
+    row_major float4x4 world; //ワールド行列
+};
+
 PSInput VSMain(VSInput input)				//頂点ごとに実行
 {
     PSInput output;
-    output.pos = float4(input.pos, 1.0f); //xyz→xyzw
+    output.pos = mul(float4(input.pos, 1.0f), world); //ローカル→ワールド    
     output.color = input.color;
     return output;
 }

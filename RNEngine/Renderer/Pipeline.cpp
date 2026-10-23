@@ -2,10 +2,21 @@
 
 void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat)
 {
+
+	//ルートパラメータ(定数バッファ)
+	D3D12_ROOT_PARAMETER param = {};
+	param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	param.Constants.ShaderRegister = 0;		//b0
+	param.Constants.RegisterSpace = 0;
+	param.Constants.Num32BitValues = 16;	//float4x4=16個
+	param.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//頂点シェーダーのみ
+
 	//ルートシグネチャ(空)
 	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;	//頂点バッファ使用
 	ComPtr<ID3DBlob> rsBlob, rsError;
+	rsDesc.NumParameters = 1;
+	rsDesc.pParameters = &param;
 	HRESULT hr = D3D12SerializeRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1, &rsBlob, &rsError);
 	if (rsError)
 	{
