@@ -12,6 +12,8 @@ void Renderer::Init(HWND hwnd, UINT width, UINT height)
 
 	m_viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
 	m_scissorRect = { 0, 0, (LONG)width, (LONG)height };
+	m_imgui.Init(hwnd, m_gfx, m_swapChain.GetFormat(), SwapChain::FRAME_COUNT);	//UI
+
 }
 
 void Renderer::BeginFrame()
@@ -60,4 +62,13 @@ void Renderer::Transition(ID3D12GraphicsCommandList* cmd, ID3D12Resource* resour
 	barrier.Transition.StateAfter = after;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	cmd->ResourceBarrier(1, &barrier);
+}
+void Renderer::BeginUI()
+{
+	m_imgui.BeginFrame();
+}
+
+void Renderer::EndUI()
+{
+	m_imgui.Render(m_gfx.GetCommandList());
 }

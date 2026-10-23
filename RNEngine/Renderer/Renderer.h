@@ -4,7 +4,7 @@
 #include "GPU/SwapChain.h"
 #include "Renderer/Pipeline.h"
 #include "Renderer/Mesh.h"
-
+#include "UI/ImGuiLayer.h"
 //何をどう描くか指示する
 class Renderer
 {
@@ -15,6 +15,8 @@ public:
 	void BeginFrame();									//記録開始+画面クリア
 	void Draw(const Pipeline& pipeline, const Mesh& mesh);	//描画命令を追加
 	void EndFrame();									//送信+表示+GPU待ち
+	void BeginUI();										//UI記録開始
+	void EndUI();
 
 	ID3D12Device* GetDevice() const { return m_gfx.GetDevice(); }
 	DXGI_FORMAT GetFormat() const { return m_swapChain.GetFormat(); }
@@ -27,4 +29,5 @@ private:
 	SwapChain m_swapChain;
 	D3D12_VIEWPORT m_viewport = {};				//描画範囲
 	D3D12_RECT m_scissorRect = {};				//切り抜き範囲
+	ImGuiLayer m_imgui;
 };

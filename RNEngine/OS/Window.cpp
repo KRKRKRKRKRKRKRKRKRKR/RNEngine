@@ -1,6 +1,7 @@
 //ウィンドウの作成とメッセージ処理を行うクラス
 
 #include "OS/Window.h"
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);	//ImGui側の入力処理
 
 //ウィンドウ破棄時にクラス登録を解除
 Window::~Window()
@@ -68,6 +69,11 @@ bool Window::ProcessMessages()
 //メッセージ処理関数
 LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp))	//ImGuiが処理したら終了
+	{
+		return true;
+	}
+
 	switch (msg)
 	{
 	case WM_DESTROY:						//ウィンドウ破棄

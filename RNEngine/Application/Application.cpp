@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "imgui.h"
 
 void Application::Init(HINSTANCE hInstance, int nCmdShow)
 {
@@ -30,6 +31,9 @@ void Application::Run()
 void Application::Draw()
 {
 	m_renderer.BeginFrame();
-	m_renderer.Draw(m_pipeline, m_triangle);
+	m_renderer.Draw(m_pipeline, m_triangle);	//三角形
+	m_renderer.BeginUI();
+	ImGui::ShowDemoWindow();					//動作確認用
+	m_renderer.EndUI();
 	m_renderer.EndFrame();
 }

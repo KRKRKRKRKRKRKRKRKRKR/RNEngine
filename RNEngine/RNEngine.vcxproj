@@ -148,6 +148,7 @@
     <ClCompile Include="Application\Application.cpp" />
     <ClCompile Include="GPU\GraphicsDevice.cpp" />
     <ClCompile Include="GPU\SwapChain.cpp" />
+    <ClCompile Include="UI\ImGuiLayer.cpp" />
     <ClCompile Include="ImGui\imgui-docking\backends\imgui_impl_dx12.cpp" />
     <ClCompile Include="ImGui\imgui-docking\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui-docking\imgui.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="GPU\SwapChain.h" />
+    <ClInclude Include="UI\ImGuiLayer.h" />
     <ClInclude Include="OS\Window.h" />
     <ClInclude Include="Renderer\Mesh.h" />
     <ClInclude Include="Renderer\Pipeline.h" />
