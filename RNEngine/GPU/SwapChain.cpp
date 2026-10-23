@@ -1,5 +1,9 @@
+//画面に表示されているバッファ､を管理し､描画先として使用するためのクラス
+//片方を描画する間に､もう片方を表示することで､ちらつきのない描画を実現する
+
 #include "GPU/SwapChain.h"
 
+//初期設定
 void SwapChain::Init(GraphicsDevice& gfx, HWND hwnd, UINT width, UINT height)
 {
 	//SwapChain設定
@@ -45,12 +49,14 @@ void SwapChain::Init(GraphicsDevice& gfx, HWND hwnd, UINT width, UINT height)
 	}
 }
 
+//画面に表示する
 void SwapChain::Present()
 {
 	CheckHR(m_swapChain->Present(1, 0));	//1=VSync待ち
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();	//次のバッファ
 }
 
+//現在の描画先バッファのRTVを取得
 D3D12_CPU_DESCRIPTOR_HANDLE SwapChain::GetCurrentRTV() const
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();

@@ -1,5 +1,8 @@
+//ウィンドウの作成とメッセージ処理を行うクラス
+
 #include "OS/Window.h"
 
+//ウィンドウ破棄時にクラス登録を解除
 Window::~Window()
 {
 	if (m_hInstance)
@@ -8,6 +11,7 @@ Window::~Window()
 	}
 }
 
+//初期化
 void Window::Init(HINSTANCE hInstance, UINT width, UINT height, const wchar_t* title)
 {
 	m_hInstance = hInstance;
@@ -39,11 +43,13 @@ void Window::Init(HINSTANCE hInstance, UINT width, UINT height, const wchar_t* t
 		nullptr, nullptr, hInstance, nullptr);
 }
 
+//表示
 void Window::Show(int nCmdShow)
 {
 	ShowWindow(m_hwnd, nCmdShow);
 }
 
+//メッセージ処理
 bool Window::ProcessMessages()
 {
 	MSG msg = {};
@@ -59,6 +65,7 @@ bool Window::ProcessMessages()
 	return true;							//続行
 }
 
+//メッセージ処理関数
 LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
