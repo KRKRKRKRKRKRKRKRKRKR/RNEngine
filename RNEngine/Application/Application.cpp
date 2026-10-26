@@ -19,6 +19,13 @@ void Application::Init(HINSTANCE hInstance, int nCmdShow)
 	t2.position.x = 0.5f;
 	Triangle(t2, m_texture, Vector4{ 1.0f, 0.5f, 0.5f, 1.0f });	//同じ画像を赤みで
 
+
+	m_sphereMesh.InitSphere(m_renderer.GetDevice(), 0.5f, 32, 16);	//球体の形(半径0.5)
+
+	m_sphereTransform.position.z = 0.5f;		//手前で切れないように奥へ(下の説明参照)
+	m_sphereTransform.scale = { 0.5f, 0.5f, 0.5f };	//小さくして画面に収める
+
+
 	m_window.Show(nCmdShow);
 }
 
@@ -66,6 +73,7 @@ void Application::Draw()
 
 	}
 	Sprite(m_spritePosition, m_spriteSize, m_spriteRotation, m_texture, m_spriteColor);	//スプライト
+	m_renderer.Draw(m_pipeline, m_sphereMesh, m_textures[m_texture], m_sphereTransform, m_sphereColor);	//球体
 
 	m_renderer.BeginUI();
 
@@ -92,6 +100,14 @@ void Application::Draw()
 	ImGui::DragFloat2("Size", &m_spriteSize.x, 1.0f);
 	ImGui::DragFloat("Rotation", &m_spriteRotation, 0.5f);		//度
 	ImGui::ColorEdit4("Color", &m_spriteColor.x);
+	ImGui::End();
+
+
+	ImGui::Begin("Sphere");
+	ImGui::DragFloat3("Position", &m_sphereTransform.position.x, 0.01f);
+	ImGui::DragFloat3("Rotation", &m_sphereTransform.rotation.x, 0.5f);
+	ImGui::DragFloat3("Scale", &m_sphereTransform.scale.x, 0.01f);
+	ImGui::ColorEdit4("Color", &m_sphereColor.x);
 	ImGui::End();
 
 	ImGui::ShowDemoWindow();									//動作確認用

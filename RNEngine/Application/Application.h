@@ -40,4 +40,7 @@ private:
 	float m_spriteRotation = 0.0f;							//回転(度)
 	Vector4 m_spriteColor = { 1.0f, 1.0f, 1.0f, 1.0f };		//RGBA
 
+	Mesh m_sphereMesh;							//球体の形
+	Transform m_sphereTransform;				//球体のSRT
+	Vector4 m_sphereColor = { 1.0f, 1.0f, 1.0f, 1.0f };	//RGBA
 };
