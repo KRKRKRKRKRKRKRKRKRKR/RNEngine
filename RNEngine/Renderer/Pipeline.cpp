@@ -3,20 +3,51 @@
 void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat)
 {
 
-	//ルートパラメータ(定数バッファ)
-	D3D12_ROOT_PARAMETER param = {};
-	param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	param.Constants.ShaderRegister = 0;		//b0
-	param.Constants.RegisterSpace = 0;
-	param.Constants.Num32BitValues = 16;	//float4x4=16個
-	param.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//頂点シェーダーのみ
+	//ルートパラメータ
+	D3D12_ROOT_PARAMETER params[2] = {};
 
-	//ルートシグネチャ(空)
+	//[0] 行列(定数バッファ)
+	params[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	params[0].Constants.ShaderRegister = 0;		//b0
+	params[0].Constants.RegisterSpace = 0;
+	params[0].Constants.Num32BitValues = 16;	//float4x4=16個
+	params[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//頂点シェーダーのみ
+	params[0].Constants.Num32BitValues = 20;	//float4x4(16)+色(4)
+	params[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;	//頂点でも色(ピクセル)でも使う
+
+	//[1] テクスチャ(SRV)
+	D3D12_DESCRIPTOR_RANGE range = {};
+	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	range.NumDescriptors = 1;
+	range.BaseShaderRegister = 0;				//t0
+	range.RegisterSpace = 0;
+	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	params[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	params[1].DescriptorTable.NumDescriptorRanges = 1;
+	params[1].DescriptorTable.pDescriptorRanges = &range;
+	params[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;		//ピクセルシェーダーのみ
+
+	//サンプラー(画像の読み方)
+	D3D12_STATIC_SAMPLER_DESC sampler = {};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;			//なめらかに補間
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;			//範囲外は繰り返し
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = 0;									//s0
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	//ルートシグネチャ
 	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;	//頂点バッファ使用
+	rsDesc.NumParameters = _countof(params);
+	rsDesc.pParameters = params;
+	rsDesc.NumStaticSamplers = 1;
+	rsDesc.pStaticSamplers = &sampler;
 	ComPtr<ID3DBlob> rsBlob, rsError;
-	rsDesc.NumParameters = 1;
-	rsDesc.pParameters = &param;
+
 	HRESULT hr = D3D12SerializeRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1, &rsBlob, &rsError);
 	if (rsError)
 	{
@@ -30,12 +61,14 @@ void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT
 	ComPtr<ID3DBlob> vs = CompileShader(shaderFile, "VSMain", "vs_5_0");
 	ComPtr<ID3DBlob> ps = CompileShader(shaderFile, "PSMain", "ps_5_0");
 
-	//入力レイアウト(Mesh.hのVertexと一致させる)
+	//入力レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },	//12+16=28
 	};
+
 
 	//PSO
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};

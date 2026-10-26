@@ -8,9 +8,16 @@ void Application::Init(HINSTANCE hInstance, int nCmdShow)
 
 	m_pipeline.Init(m_renderer.GetDevice(), L"shaders.hlsl", m_renderer.GetFormat());	//描き方
 
-	GameObject triangle;
-	triangle.mesh.InitTriangle(m_renderer.GetDevice());	//三角形を作る
-	m_objects.push_back(triangle);
+	m_triangleMesh.InitTriangle(m_renderer.GetDevice());	//三角形の形(1回だけ)
+	m_quadMesh.InitQuad(m_renderer.GetDevice());
+	m_texture = LoadTexture(L"Resource/UVChecker.png");		//画像(番号を受け取る)
+
+	Transform t1;
+	Triangle(t1, m_texture, Vector4{ 1.0f, 1.0f, 1.0f, 1.0f });	//白=画像そのまま
+
+	Transform t2;
+	t2.position.x = 0.5f;
+	Triangle(t2, m_texture, Vector4{ 1.0f, 0.5f, 0.5f, 1.0f });	//同じ画像を赤みで
 
 	m_window.Show(nCmdShow);
 }
@@ -23,14 +30,42 @@ void Application::Run()
 	}
 }
 
+//画像を読み込んで、番号を返す
+int Application::LoadTexture(const wchar_t* file)
+{
+	m_textures.emplace_back();										//末尾に1枚分追加
+	m_textures.back().Init(m_renderer.GetGraphicsDevice(), file);	//読み込み+GPUへ転送
+	return (int)m_textures.size() - 1;								//追加した場所=番号
+}
+
+//三角形を一覧に追加
+void Application::Triangle(const Transform& transform, int texture, const Vector4& color)
+{
+	m_objects.emplace_back(&m_triangleMesh, texture, transform, color);
+}
+
+//スプライトをその場で描く(positionは中心のピクセル位置、sizeはピクセルサイズ、rotationは度)
+void Application::Sprite(const Vector2& position, const Vector2& size, float rotation, int texture, const Vector4& color)
+{
+	Transform t;
+	t.position.x = position.x;				//中心のピクセル位置
+	t.position.y = position.y;
+	t.scale.x = size.x;						//1x1の板を、ピクセルサイズに拡大
+	t.scale.y = size.y;
+	t.rotation.z = rotation;				//画面の回転(Z軸まわり)
+	m_renderer.DrawSprite(m_pipeline, m_quadMesh, m_textures[texture], t, color);
+}
+
 void Application::Draw()
 {
 	m_renderer.BeginFrame();
 
 	for (const GameObject& obj : m_objects)
 	{
-		m_renderer.Draw(m_pipeline, obj.mesh, obj.transform);	//全部描く
+		m_renderer.Draw(m_pipeline, *obj.mesh, m_textures[obj.texture], obj.transform, obj.color);	//全部描く
+
 	}
+	Sprite(m_spritePosition, m_spriteSize, m_spriteRotation, m_texture, m_spriteColor);	//スプライト
 
 	m_renderer.BeginUI();
 
@@ -43,6 +78,7 @@ void Application::Draw()
 		ImGui::DragFloat3("Position", &obj.transform.position.x, 0.01f);
 		ImGui::DragFloat3("Rotation", &obj.transform.rotation.x, 0.5f);
 		ImGui::DragFloat3("Scale", &obj.transform.scale.x, 0.01f);
+		ImGui::ColorEdit4("Color", &obj.color.x);				//RGBA
 		if (ImGui::Button("Reset"))
 		{
 			obj.transform = Transform();						//初期値に戻す
@@ -51,10 +87,16 @@ void Application::Draw()
 	}
 	ImGui::End();
 
+	ImGui::Begin("Sprite");
+	ImGui::DragFloat2("Position", &m_spritePosition.x, 1.0f);	//ピクセル単位
+	ImGui::DragFloat2("Size", &m_spriteSize.x, 1.0f);
+	ImGui::DragFloat("Rotation", &m_spriteRotation, 0.5f);		//度
+	ImGui::ColorEdit4("Color", &m_spriteColor.x);
+	ImGui::End();
+
 	ImGui::ShowDemoWindow();									//動作確認用
 
 	m_renderer.EndUI();
 
 	m_renderer.EndFrame();
-
 }

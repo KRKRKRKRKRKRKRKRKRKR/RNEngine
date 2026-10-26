@@ -10,7 +10,7 @@
 #pragma comment(lib, "d3d12.lib")			//Dx12本体
 #pragma comment(lib, "dxgi.lib")			//Factory,SwapChain
 #pragma comment(lib, "d3dcompiler.lib")		//シェーダーのコンパイル
-
+#pragma comment(lib, "dxguid.lib")	
 using Microsoft::WRL::ComPtr;
 
 //HRESULTが失敗なら停止

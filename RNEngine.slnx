@@ -3,5 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="RNEngine/DirectXTex/DirectXTex_Desktop_2022_Win10.vcxproj" Id="371b9fa9-4c90-4ac6-a123-aced756d6c77" />
   <Project Path="RNEngine\RNEngine.vcxproj" Id="f22815ad-acc5-4cc6-ad65-a4e568345603" />
 </Solution>
