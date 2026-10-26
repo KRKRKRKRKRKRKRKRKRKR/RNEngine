@@ -14,6 +14,7 @@ public:
 	void Init(ID3D12Device* device, const Vertex* vertices, UINT vertexCount);
 	void Draw(ID3D12GraphicsCommandList* cmd) const;
 
+	void InitTriangle(ID3D12Device* device);	//三角形を作る
 private:
 	ComPtr<ID3D12Resource> m_vertexBuffer;				//頂点データ
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView = {};	//頂点バッファの説明

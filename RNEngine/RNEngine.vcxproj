@@ -174,10 +174,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="Application\GameObject.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="GPU\SwapChain.h" />
+    <ClInclude Include="Math\Matrix.h" />
+    <ClInclude Include="Math\Matrix\Matrix3x3.h" />
+    <ClInclude Include="Math\Matrix\Matrix4x4.h" />
     <ClInclude Include="Math\Transform.h" />
+    <ClInclude Include="Math\Vector.h" />
+    <ClInclude Include="Math\Vector\Vector2.h" />
+    <ClInclude Include="Math\Vector\Vector3.h" />
+    <ClInclude Include="Math\Vector\Vector4.h" />
     <ClInclude Include="UI\ImGuiLayer.h" />
     <ClInclude Include="OS\Window.h" />
     <ClInclude Include="Renderer\Mesh.h" />

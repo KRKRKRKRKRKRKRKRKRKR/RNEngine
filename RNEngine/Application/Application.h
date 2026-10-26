@@ -3,6 +3,9 @@
 #include "OS/Window.h"
 #include "Renderer/Renderer.h"
 #include  "Math/Transform.h"
+#include "GameObject.h"
+#include <vector> //std::vector
+
 //アプリの流れ(初期化→ループ→終了)を回す
 class Application
 {
@@ -19,6 +22,6 @@ private:
 	Window m_window;						//最初に宣言(最後に破棄)
 	Renderer m_renderer;
 	Pipeline m_pipeline;
-	Mesh m_triangle;
-	Transform m_triangleTransform;
+	std::vector<GameObject> m_objects;		//描画する物の一覧
+
 };

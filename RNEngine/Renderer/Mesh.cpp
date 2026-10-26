@@ -42,3 +42,15 @@ void Mesh::Draw(ID3D12GraphicsCommandList* cmd) const
 	cmd->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 	cmd->DrawInstanced(m_vertexCount, 1, 0, 0);
 }
+
+void Mesh::InitTriangle(ID3D12Device* device)
+{
+	//頂点データ(時計回り)
+	const Vertex vertices[] =
+	{
+		{ {  0.0f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },	//上 赤
+		{ {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },	//右下 緑
+		{ { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },	//左下 青
+	};
+	Init(device, vertices, _countof(vertices));
+}
