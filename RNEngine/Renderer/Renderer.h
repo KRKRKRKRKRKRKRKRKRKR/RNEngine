@@ -8,6 +8,7 @@
 #include "Math/Transform.h"
 #include "Renderer/Texture.h"
 #include "Math/Vector.h"
+#include "Renderer/Camera.h"
 
 
 //何をどう描くか指示する
@@ -24,6 +25,8 @@ public:
 
 	void BeginUI();										//UI記録開始
 	void EndUI();
+	Camera& GetCamera() { return m_camera; }				//カメラを動かす用
+
 
 	ID3D12Device* GetDevice() const { return m_gfx.GetDevice(); }
 	DXGI_FORMAT GetFormat() const { return m_swapChain.GetFormat(); }
@@ -38,5 +41,9 @@ private:
 	D3D12_VIEWPORT m_viewport = {};				//描画範囲
 	D3D12_RECT m_scissorRect = {};				//切り抜き範囲
 	ImGuiLayer m_imgui;
+
+	Camera m_camera;							//3D用のカメラ
+	float m_aspect = 1.0f;						//画面の幅÷高さ
+
 
 };

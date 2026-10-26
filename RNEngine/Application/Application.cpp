@@ -22,7 +22,6 @@ void Application::Init(HINSTANCE hInstance, int nCmdShow)
 
 	m_sphereMesh.InitSphere(m_renderer.GetDevice(), 0.5f, 32, 16);	//球体の形(半径0.5)
 
-	m_sphereTransform.position.z = 0.5f;		//手前で切れないように奥へ(下の説明参照)
 	m_sphereTransform.scale = { 0.5f, 0.5f, 0.5f };	//小さくして画面に収める
 
 

@@ -11,6 +11,7 @@ void Renderer::Init(HWND hwnd, UINT width, UINT height)
 	m_swapChain.Init(m_gfx, hwnd, width, height);			//SwapChain・RTV
 
 	m_viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
+	m_aspect = (float)width / (float)height;	//アスペクト比
 	m_scissorRect = { 0, 0, (LONG)width, (LONG)height };
 	m_imgui.Init(hwnd, m_gfx, m_swapChain.GetFormat(), SwapChain::FRAME_COUNT);	//UI
 	//平行投影行列(左上が(0,0)、右下が(幅,高さ))
@@ -51,7 +52,8 @@ void Renderer::Draw(const Pipeline& pipeline, const Mesh& mesh, const Texture& t
 	texture.Set(cmd);						//画像
 
 	ObjectConstants constants;
-	DirectX::XMStoreFloat4x4(&constants.world, transform.GetWorldMatrix());	//計算用→保存用
+	DirectX::XMMATRIX viewProj = m_camera.GetViewProjectionMatrix(m_aspect);	//カメラの行列
+	DirectX::XMStoreFloat4x4(&constants.world, transform.GetWorldMatrix() * viewProj);	//ワールド→画面
 	constants.color = color;
 	cmd->SetGraphicsRoot32BitConstants(0, 20, &constants, 0);				//b0へ20個(行列16+色4)
 
