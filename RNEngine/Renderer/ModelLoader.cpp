@@ -3,7 +3,7 @@
 #include <assimp/scene.h>					//aiScene(読んだ結果)
 #include <assimp/postprocess.h>				//aiProcess_のフラグ
 
-bool ModelLoader::Load(const char* path, std::vector<Vertex>& vertices, std::vector<UINT>& indices)
+bool ModelLoader::Load(const char* path, float scale, std::vector<Vertex>& vertices, std::vector<UINT>& indices)
 {
 	Assimp::Importer importer;				//破棄時にsceneも消える
 	const aiScene* scene = importer.ReadFile(path,
@@ -28,9 +28,9 @@ bool ModelLoader::Load(const char* path, std::vector<Vertex>& vertices, std::vec
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
 			Vertex v = {};
-			v.position[0] = mesh->mVertices[i].x;
-			v.position[1] = mesh->mVertices[i].y;
-			v.position[2] = mesh->mVertices[i].z;
+			v.position[0] = mesh->mVertices[i].x * scale;	//ファイルの単位→エンジンの単位
+			v.position[1] = mesh->mVertices[i].y * scale;
+			v.position[2] = mesh->mVertices[i].z * scale;
 			v.color[0] = 1.0f;								//白
 			v.color[1] = 1.0f;
 			v.color[2] = 1.0f;

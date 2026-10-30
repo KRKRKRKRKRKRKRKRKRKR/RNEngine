@@ -22,7 +22,7 @@ public:
 
 	//資源(番号で扱う)
 	int LoadTexture(const wchar_t* file);							//画像を読んで番号を返す
-	int LoadMesh(const char* file);									//モデル(obj,fbx等)を読んで形の番号を返す(失敗は-1)
+	int LoadMesh(const char* file, float scale = 1.0f);				//モデル(obj,fbx等)を読んで形の番号を返す(失敗は-1)。scale=単位合わせ(cm→mなら0.01)
 	int GetTriangleMesh() const { return m_triangleMesh; }			//三角形の形の番号
 	int GetQuadMesh() const { return m_quadMesh; }					//四角形の形の番号
 

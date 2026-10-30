@@ -59,11 +59,11 @@ int Engine::LoadTexture(const wchar_t* file)
 }
 
 //モデルファイルを読んで、形の番号を返す(失敗は-1)
-int Engine::LoadMesh(const char* file)
+int Engine::LoadMesh(const char* file, float scale)
 {
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
-	if (!ModelLoader::Load(file, vertices, indices)) return -1;	//理由はログ
+	if (!ModelLoader::Load(file, scale, vertices, indices)) return -1;	//理由はログ
 
 	int mesh = AddMesh();
 	m_meshes[mesh].Init(m_renderer.GetDevice(), vertices.data(), (UINT)vertices.size(),

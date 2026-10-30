@@ -6,5 +6,5 @@
 class ModelLoader
 {
 public:
-	static bool Load(const char* path, std::vector<Vertex>& vertices, std::vector<UINT>& indices);	//失敗でfalse(理由はログ)
+	static bool Load(const char* path, float scale, std::vector<Vertex>& vertices, std::vector<UINT>& indices);	//scale=頂点に掛ける倍率。失敗でfalse(理由はログ)
 };

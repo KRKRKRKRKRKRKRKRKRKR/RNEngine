@@ -29,12 +29,12 @@ void GameApp::Init(Engine& engine)
 	m_sphere = engine.CreateSphere(texture0);
 	m_sphere->transform.scale = { 0.5f, 0.5f, 0.5f };			//小さくして画面に収める
 
-	int beetleMesh = engine.LoadMesh("Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbx");	//形を読む(番号を受け取る)
+	int beetleMesh = engine.LoadMesh("Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbx", 0.01f);	//cm→m(長さ約3.45)
 	int beetleTexture = engine.LoadTexture(L"Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbm/387359c5580f06c08c266126b3b46db47e48ba44.png");	//色見本の画像
 	m_beetle = engine.CreateModel(beetleMesh, beetleTexture);
 	m_beetle->transform.position = { 0.6f, -0.6f, 0.0f };
 	m_beetle->transform.rotation = { 15.0f, 30.0f, 0.0f };		//斜めにして立体に見せる
-	m_beetle->transform.scale = { 0.003f, 0.003f, 0.003f };	//cm単位(長さ約345)→約1
+	m_beetle->transform.scale = { 0.3f, 0.3f, 0.3f };			//画面に収める(1で実寸)
 
 	m_sprite = engine.CreateSprite(texture0, { 640.0f, 360.0f }, { 256.0f, 256.0f });
 
