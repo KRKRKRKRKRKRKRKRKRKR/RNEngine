@@ -4,22 +4,22 @@
 
 void GameApp::Init(Engine& engine)
 {
-	m_texture = engine.LoadTexture(L"Resource/UVChecker0.png");	//画像(番号を受け取る)
-
+	texture0 = engine.LoadTexture(L"Resource/UVChecker0.png");	//画像(番号を受け取る)
+	texture1 = engine.LoadTexture(L"Resource/UVChecker1.png");
 	Transform t1;
-	AddTriangle(engine, t1, Vector4{ 1.0f, 1.0f, 1.0f, 1.0f });	//白=画像そのまま
+	AddTriangle(engine,texture0,t1, Vector4{ 1.0f, 1.0f, 1.0f, 1.0f });	//白=画像そのまま
 
 	Transform t2;
 	t2.position.x = 0.5f;
-	AddTriangle(engine, t2, Vector4{ 1.0f, 0.5f, 0.5f, 1.0f });	//同じ画像を赤みで
+	AddTriangle(engine, texture1,t2, Vector4{ 1.0f, 0.5f, 0.5f, 1.0f });	//同じ画像を赤みで
 
 	m_sphereMesh = engine.CreateSphere(0.5f, 32, 16);			//球体の形(半径0.5)
 	m_sphereTransform.scale = { 0.5f, 0.5f, 0.5f };				//小さくして画面に収める
 }
 
-void GameApp::AddTriangle(Engine& engine, const Transform& transform, const Vector4& color)
+void GameApp::AddTriangle(Engine& engine, const int texture, const Transform& transform, const Vector4& color)
 {
-	m_objects.emplace_back(engine.GetTriangleMesh(), m_texture, transform, color);
+	m_objects.emplace_back(engine.GetTriangleMesh(), texture, transform, color);
 }
 
 void GameApp::Draw(Engine& engine)
@@ -28,8 +28,8 @@ void GameApp::Draw(Engine& engine)
 	{
 		engine.DrawMesh(obj.mesh, obj.texture, obj.transform, obj.color);	//全部描く
 	}
-	engine.DrawSprite(m_spritePosition, m_spriteSize, m_spriteRotation, m_texture, m_spriteColor);	//スプライト
-	engine.DrawMesh(m_sphereMesh, m_texture, m_sphereTransform, m_sphereColor);	//球体
+	engine.DrawSprite(m_spritePosition, m_spriteSize, m_spriteRotation, texture0, m_spriteColor);	//スプライト
+	engine.DrawMesh(m_sphereMesh, texture0, m_sphereTransform, m_sphereColor);	//球体
 }
 
 void GameApp::DrawUI(Engine& engine)

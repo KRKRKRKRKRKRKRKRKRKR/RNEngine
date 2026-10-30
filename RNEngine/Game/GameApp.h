@@ -14,9 +14,10 @@ public:
 	void DrawUI(Engine& engine) override;
 
 private:
-	void AddTriangle(Engine& engine, const Transform& transform, const Vector4& color);	//三角形を一覧に追加
+	void AddTriangle(Engine& engine, const int texture,const Transform& transform, const Vector4& color);	//三角形を一覧に追加
 
-	int m_texture = -1;						//画像の番号
+	int texture0 = -1;						//画像の番号
+	int texture1 = -1;
 	std::vector<GameObject> m_objects;		//三角形たち
 
 	Vector2 m_spritePosition = { 640.0f, 360.0f };			//中心のピクセル位置
