@@ -19,7 +19,7 @@ private:
 	Model* m_triangle0 = nullptr;			//借りているだけ(deleteしない)
 	Model* m_triangle1 = nullptr;
 	Model* m_sphere = nullptr;
-	Model* m_cube = nullptr;				//Cube.objから読んだ形
+	Model* m_beetle = nullptr;				//Beatall.fbxから読んだ形
 	Sprite* m_sprite = nullptr;
 	Spinner* m_spinner = nullptr;			//GameObject(Destroy後はnullptrに戻す)
 };

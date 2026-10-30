@@ -1,5 +1,6 @@
 [INFO ] Start
 [INFO ] Texture load: Resource/UVChecker0.png
 [INFO ] Texture load: Resource/UVChecker1.png
-[INFO ] Model load: Resource/Cube.obj (vertices 20, triangles 12)
+[INFO ] Model load: Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbx (vertices 8950, triangles 6741)
+[INFO ] Texture load: Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbm/387359c5580f06c08c266126b3b46db47e48ba44.png
 [INFO ] End

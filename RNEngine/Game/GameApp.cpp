@@ -29,11 +29,12 @@ void GameApp::Init(Engine& engine)
 	m_sphere = engine.CreateSphere(texture0);
 	m_sphere->transform.scale = { 0.5f, 0.5f, 0.5f };			//小さくして画面に収める
 
-	int cubeMesh = engine.LoadMesh("Resource/Cube.obj");		//形を読む(番号を受け取る)
-	m_cube = engine.CreateModel(cubeMesh, texture1);
-	m_cube->transform.position = { 1.0f, -0.5f, 0.0f };
-	m_cube->transform.rotation = { 30.0f, 45.0f, 0.0f };		//斜めにして立体に見せる
-	m_cube->transform.scale = { 0.4f, 0.4f, 0.4f };
+	int beetleMesh = engine.LoadMesh("Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbx");	//形を読む(番号を受け取る)
+	int beetleTexture = engine.LoadTexture(L"Resource/Designersoup Low Poly Car Pack Volume 1 updated/Beatall.fbm/387359c5580f06c08c266126b3b46db47e48ba44.png");	//色見本の画像
+	m_beetle = engine.CreateModel(beetleMesh, beetleTexture);
+	m_beetle->transform.position = { 0.6f, -0.6f, 0.0f };
+	m_beetle->transform.rotation = { 15.0f, 30.0f, 0.0f };		//斜めにして立体に見せる
+	m_beetle->transform.scale = { 0.003f, 0.003f, 0.003f };	//cm単位(長さ約345)→約1
 
 	m_sprite = engine.CreateSprite(texture0, { 640.0f, 360.0f }, { 256.0f, 256.0f });
 
@@ -45,7 +46,7 @@ void GameApp::DrawUI(Engine& engine)
 	EditModel("Triangle0", *m_triangle0);
 	EditModel("Triangle1", *m_triangle1);
 	EditModel("Sphere", *m_sphere);
-	EditModel("Cube", *m_cube);
+	EditModel("Beetle", *m_beetle);
 
 	ImGui::Begin("Sprite");
 	ImGui::DragFloat2("Position", &m_sprite->position.x, 1.0f);	//ピクセル単位
