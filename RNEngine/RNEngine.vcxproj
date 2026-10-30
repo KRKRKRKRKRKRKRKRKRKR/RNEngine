@@ -147,6 +147,8 @@
   <ItemGroup>
     <ClCompile Include="Core\Log.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine\GameObject.cpp" />
+    <ClCompile Include="Game\Spinner.cpp" />
     <ClCompile Include="Game\GameApp.cpp" />
     <ClCompile Include="GPU\GraphicsDevice.cpp" />
     <ClCompile Include="GPU\SwapChain.cpp" />
@@ -162,6 +164,7 @@
     <ClCompile Include="ImGui\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OS\Window.cpp" />
+    <ClCompile Include="OS\Input.cpp" />
     <ClCompile Include="Renderer\Mesh.cpp" />
     <ClCompile Include="Renderer\Pipeline.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
@@ -180,7 +183,10 @@
     <ClInclude Include="Core\Log.h" />
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\Game.h" />
+    <ClInclude Include="Engine\Model.h" />
     <ClInclude Include="Engine\GameObject.h" />
+    <ClInclude Include="Game\Spinner.h" />
+    <ClInclude Include="Engine\Sprite.h" />
     <ClInclude Include="Game\GameApp.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
@@ -198,6 +204,7 @@
     <ClInclude Include="Renderer\Texture.h" />
     <ClInclude Include="UI\ImGuiLayer.h" />
     <ClInclude Include="OS\Window.h" />
+    <ClInclude Include="OS\Input.h" />
     <ClInclude Include="Renderer\Mesh.h" />
     <ClInclude Include="Renderer\Pipeline.h" />
     <ClInclude Include="Renderer\Renderer.h" />

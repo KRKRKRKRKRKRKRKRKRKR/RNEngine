@@ -1,69 +1,64 @@
 #include "Game/GameApp.h"
 #include "Engine/Engine.h"
+#include "Game/Spinner.h"
 #include "imgui.h"
+
+//Modelの値をいじるImGui窓(このcpp内だけ)
+static void EditModel(const char* name, Model& model)
+{
+	ImGui::Begin(name);
+	ImGui::DragFloat3("Position", &model.transform.position.x, 0.01f);
+	ImGui::DragFloat3("Rotation", &model.transform.rotation.x, 0.5f);
+	ImGui::DragFloat3("Scale", &model.transform.scale.x, 0.01f);
+	ImGui::ColorEdit4("Color", &model.color.x);				//RGBA
+	ImGui::Checkbox("Visible", &model.visible);
+	ImGui::End();
+}
 
 void GameApp::Init(Engine& engine)
 {
 	texture0 = engine.LoadTexture(L"Resource/UVChecker0.png");	//画像(番号を受け取る)
 	texture1 = engine.LoadTexture(L"Resource/UVChecker1.png");
-	Transform t1;
-	AddTriangle(engine,texture0,t1, Vector4{ 1.0f, 1.0f, 1.0f, 1.0f });	//白=画像そのまま
 
-	Transform t2;
-	t2.position.x = 0.5f;
-	AddTriangle(engine, texture1,t2, Vector4{ 1.0f, 0.5f, 0.5f, 1.0f });	//同じ画像を赤みで
+	m_triangle0 = engine.CreateTriangle(texture0);				//作るだけ。描画は自動
 
-	m_sphereMesh = engine.CreateSphere(0.5f, 32, 16);			//球体の形(半径0.5)
-	m_sphereTransform.scale = { 0.5f, 0.5f, 0.5f };				//小さくして画面に収める
-}
+	m_triangle1 = engine.CreateTriangle(texture1);
+	m_triangle1->transform.position.x = 0.5f;
+	m_triangle1->color = { 1.0f, 0.5f, 0.5f, 1.0f };			//赤みを掛ける
 
-void GameApp::AddTriangle(Engine& engine, const int texture, const Transform& transform, const Vector4& color)
-{
-	m_objects.emplace_back(engine.GetTriangleMesh(), texture, transform, color);
-}
+	m_sphere = engine.CreateSphere(texture0);
+	m_sphere->transform.scale = { 0.5f, 0.5f, 0.5f };			//小さくして画面に収める
 
-void GameApp::Draw(Engine& engine)
-{
-	for (const GameObject& obj : m_objects)
-	{
-		engine.DrawMesh(obj.mesh, obj.texture, obj.transform, obj.color);	//全部描く
-	}
-	engine.DrawSprite(m_spritePosition, m_spriteSize, m_spriteRotation, texture0, m_spriteColor);	//スプライト
-	engine.DrawMesh(m_sphereMesh, texture0, m_sphereTransform, m_sphereColor);	//球体
+	m_sprite = engine.CreateSprite(texture0, { 640.0f, 360.0f }, { 256.0f, 256.0f });
+
+	m_spinner = engine.Spawn<Spinner>(texture1, -0.6f, 0.3f);	//出すだけ。動きと描画は自動
 }
 
 void GameApp::DrawUI(Engine& engine)
 {
-	ImGui::Begin("Objects");
-	for (size_t i = 0; i < m_objects.size(); i++)
-	{
-		GameObject& obj = m_objects[i];
-		ImGui::PushID((int)i);									//同じラベルの衝突を避ける
-		ImGui::Text("Object %d", (int)i);
-		ImGui::DragFloat3("Position", &obj.transform.position.x, 0.01f);
-		ImGui::DragFloat3("Rotation", &obj.transform.rotation.x, 0.5f);
-		ImGui::DragFloat3("Scale", &obj.transform.scale.x, 0.01f);
-		ImGui::ColorEdit4("Color", &obj.color.x);				//RGBA
-		if (ImGui::Button("Reset"))
-		{
-			obj.transform = Transform();						//初期値に戻す
-		}
-		ImGui::PopID();
-	}
-	ImGui::End();
+	EditModel("Triangle0", *m_triangle0);
+	EditModel("Triangle1", *m_triangle1);
+	EditModel("Sphere", *m_sphere);
 
 	ImGui::Begin("Sprite");
-	ImGui::DragFloat2("Position", &m_spritePosition.x, 1.0f);	//ピクセル単位
-	ImGui::DragFloat2("Size", &m_spriteSize.x, 1.0f);
-	ImGui::DragFloat("Rotation", &m_spriteRotation, 0.5f);		//度
-	ImGui::ColorEdit4("Color", &m_spriteColor.x);
+	ImGui::DragFloat2("Position", &m_sprite->position.x, 1.0f);	//ピクセル単位
+	ImGui::DragFloat2("Size", &m_sprite->size.x, 1.0f);
+	ImGui::DragFloat("Rotation", &m_sprite->rotation, 0.5f);	//度
+	ImGui::ColorEdit4("Color", &m_sprite->color.x);
+	ImGui::Checkbox("Visible", &m_sprite->visible);
 	ImGui::End();
 
-	ImGui::Begin("Sphere");
-	ImGui::DragFloat3("Position", &m_sphereTransform.position.x, 0.01f);
-	ImGui::DragFloat3("Rotation", &m_sphereTransform.rotation.x, 0.5f);
-	ImGui::DragFloat3("Scale", &m_sphereTransform.scale.x, 0.01f);
-	ImGui::ColorEdit4("Color", &m_sphereColor.x);
+	ImGui::Begin("Spinner");									//Spawn/Destroyの確認
+	if (ImGui::Button("Spawn") && !m_spinner)
+	{
+		m_spinner = engine.Spawn<Spinner>(texture1, -0.6f, 0.3f);
+	}
+	if (ImGui::Button("Destroy") && m_spinner)
+	{
+		m_spinner->Destroy();									//フレームの終わりに消える
+		m_spinner = nullptr;									//以後使わない
+	}
+	ImGui::Text(m_spinner ? "alive" : "none");
 	ImGui::End();
 
 	ImGui::ShowDemoWindow();									//動作確認用
