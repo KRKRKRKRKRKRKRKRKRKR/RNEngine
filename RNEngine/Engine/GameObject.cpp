@@ -8,6 +8,14 @@ GameObject::~GameObject()
 	for (Sprite* s : m_sprites) m_engine->Destroy(s);
 }
 
+Model* GameObject::CreateModel(int mesh, int texture)
+{
+	Model* m = m_engine->CreateModel(mesh, texture);
+	m->transform.parent = &transform;					//自分に付いてくる
+	m_models.push_back(m);								//覚えておく
+	return m;
+}
+
 Model* GameObject::CreateTriangle(int texture)
 {
 	Model* m = m_engine->CreateTriangle(texture);

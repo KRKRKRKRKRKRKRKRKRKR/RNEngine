@@ -1,4 +1,5 @@
 [INFO ] Start
 [INFO ] Texture load: Resource/UVChecker0.png
 [INFO ] Texture load: Resource/UVChecker1.png
+[INFO ] Model load: Resource/Cube.obj (vertices 20, triangles 12)
 [INFO ] End

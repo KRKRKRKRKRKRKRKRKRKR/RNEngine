@@ -1,5 +1,6 @@
 #include "Engine/Engine.h"
 #include "Engine/Game.h"
+#include "Renderer/ModelLoader.h"
 #include <chrono>							//経過時間
 
 void Engine::Init(HINSTANCE hInstance, int nCmdShow, UINT width, UINT height, const wchar_t* title)
@@ -55,6 +56,24 @@ int Engine::LoadTexture(const wchar_t* file)
 	m_textures.emplace_back();										//末尾に1枚分追加
 	m_textures.back().Init(m_renderer.GetGraphicsDevice(), file);	//読み込み+GPUへ転送
 	return (int)m_textures.size() - 1;								//追加した場所=番号
+}
+
+//モデルファイルを読んで、形の番号を返す(失敗は-1)
+int Engine::LoadMesh(const char* file)
+{
+	std::vector<Vertex> vertices;
+	std::vector<UINT> indices;
+	if (!ModelLoader::Load(file, vertices, indices)) return -1;	//理由はログ
+
+	int mesh = AddMesh();
+	m_meshes[mesh].Init(m_renderer.GetDevice(), vertices.data(), (UINT)vertices.size(),
+		indices.data(), (UINT)indices.size());						//GPUへ
+	return mesh;
+}
+
+Model* Engine::CreateModel(int mesh, int texture)
+{
+	return AddModel(mesh, texture);
 }
 
 Model* Engine::CreateTriangle(int texture)
@@ -122,7 +141,7 @@ void Engine::DrawModels()
 {
 	for (const std::unique_ptr<Model>& m : m_models)
 	{
-		if (!m->visible) continue;
+		if (!m->visible || m->m_mesh < 0) continue;	//読み込み失敗の形は飛ばす
 		DrawMesh(m->m_mesh, m->texture, m->transform, m->color);
 	}
 }

@@ -5,6 +5,8 @@ Release/
 *.user
 *.lnk
 imgui.ini
+vcpkg_installed/
+log.txt
 /.obsidian/
 Docs/.obsidian/.obsidian/
 Docs/.obsidian/workspace*.json

@@ -22,7 +22,8 @@ public:
 
 protected:
 	Engine& GetEngine() { return *m_engine; }
-	Model* CreateTriangle(int texture);					//作ったModelを記録(破棄時に自動削除)
+	Model* CreateModel(int mesh, int texture);			//作ったModelを記録(破棄時に自動削除)
+	Model* CreateTriangle(int texture);
 	Model* CreateSphere(int texture);
 	Sprite* CreateSprite(int texture, const Vector2& position, const Vector2& size);
 

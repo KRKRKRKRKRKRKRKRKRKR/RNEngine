@@ -22,10 +22,12 @@ public:
 
 	//資源(番号で扱う)
 	int LoadTexture(const wchar_t* file);							//画像を読んで番号を返す
+	int LoadMesh(const char* file);									//モデル(obj,fbx等)を読んで形の番号を返す(失敗は-1)
 	int GetTriangleMesh() const { return m_triangleMesh; }			//三角形の形の番号
 	int GetQuadMesh() const { return m_quadMesh; }					//四角形の形の番号
 
 	//物を作る(Engineが持ち、毎フレーム自動で描く。返すポインタは借りるだけ)
+	Model* CreateModel(int mesh, int texture);						//LoadMeshの形
 	Model* CreateTriangle(int texture);								//三角形
 	Model* CreateSphere(int texture);								//球(半径0.5)
 	Sprite* CreateSprite(int texture, const Vector2& position = { 640.0f, 360.0f }, const Vector2& size = { 100.0f, 100.0f });

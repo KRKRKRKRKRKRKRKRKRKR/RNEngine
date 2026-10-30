@@ -29,6 +29,12 @@ void GameApp::Init(Engine& engine)
 	m_sphere = engine.CreateSphere(texture0);
 	m_sphere->transform.scale = { 0.5f, 0.5f, 0.5f };			//小さくして画面に収める
 
+	int cubeMesh = engine.LoadMesh("Resource/Cube.obj");		//形を読む(番号を受け取る)
+	m_cube = engine.CreateModel(cubeMesh, texture1);
+	m_cube->transform.position = { 1.0f, -0.5f, 0.0f };
+	m_cube->transform.rotation = { 30.0f, 45.0f, 0.0f };		//斜めにして立体に見せる
+	m_cube->transform.scale = { 0.4f, 0.4f, 0.4f };
+
 	m_sprite = engine.CreateSprite(texture0, { 640.0f, 360.0f }, { 256.0f, 256.0f });
 
 	m_spinner = engine.Spawn<Spinner>(texture1, -0.6f, 0.3f);	//出すだけ。動きと描画は自動
@@ -39,6 +45,7 @@ void GameApp::DrawUI(Engine& engine)
 	EditModel("Triangle0", *m_triangle0);
 	EditModel("Triangle1", *m_triangle1);
 	EditModel("Sphere", *m_sphere);
+	EditModel("Cube", *m_cube);
 
 	ImGui::Begin("Sprite");
 	ImGui::DragFloat2("Position", &m_sprite->position.x, 1.0f);	//ピクセル単位
