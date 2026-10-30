@@ -1,8 +1,8 @@
-#include "Game/MyGame.h"
+#include "Game/GameApp.h"
 #include "Engine/Engine.h"
 #include "imgui.h"
 
-void MyGame::Init(Engine& engine)
+void GameApp::Init(Engine& engine)
 {
 	m_texture = engine.LoadTexture(L"Resource/UVChecker0.png");	//画像(番号を受け取る)
 
@@ -17,12 +17,12 @@ void MyGame::Init(Engine& engine)
 	m_sphereTransform.scale = { 0.5f, 0.5f, 0.5f };				//小さくして画面に収める
 }
 
-void MyGame::AddTriangle(Engine& engine, const Transform& transform, const Vector4& color)
+void GameApp::AddTriangle(Engine& engine, const Transform& transform, const Vector4& color)
 {
 	m_objects.emplace_back(engine.GetTriangleMesh(), m_texture, transform, color);
 }
 
-void MyGame::Draw(Engine& engine)
+void GameApp::Draw(Engine& engine)
 {
 	for (const GameObject& obj : m_objects)
 	{
@@ -32,7 +32,7 @@ void MyGame::Draw(Engine& engine)
 	engine.DrawMesh(m_sphereMesh, m_texture, m_sphereTransform, m_sphereColor);	//球体
 }
 
-void MyGame::DrawUI(Engine& engine)
+void GameApp::DrawUI(Engine& engine)
 {
 	ImGui::Begin("Objects");
 	for (size_t i = 0; i < m_objects.size(); i++)

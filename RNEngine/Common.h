@@ -6,6 +6,7 @@
 #include <dxgi1_6.h>						//Factory,SwapChain
 #include <d3dcompiler.h>					//シェーダーのコンパイル
 #include <wrl.h>							//ComPtr
+#include "Core/Log.h"						//ログ,CHECK_HR
 
 #pragma comment(lib, "d3d12.lib")			//Dx12本体
 #pragma comment(lib, "dxgi.lib")			//Factory,SwapChain

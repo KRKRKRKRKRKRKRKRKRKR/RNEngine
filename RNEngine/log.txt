@@ -1,0 +1,2 @@
+[INFO ] Start
+[INFO ] Texture load: Resource/UVChecker0.png

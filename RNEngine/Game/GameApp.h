@@ -6,7 +6,7 @@
 #include "Math/Vector.h"
 
 //実際のゲームの中身
-class MyGame : public Game
+class GameApp : public Game
 {
 public:
 	void Init(Engine& engine) override;

@@ -9,7 +9,8 @@ void Texture::Init(GraphicsDevice& gfx, const wchar_t* file)
 	//画像読み込み(CPU側)
 	DirectX::TexMetadata metadata;
 	DirectX::ScratchImage image;
-	CheckHR(DirectX::LoadFromWICFile(file, DirectX::WIC_FLAGS_NONE, &metadata, image));
+	Log::Info("Texture load: %ls", file);					//%lsはwchar_t文字列
+	CHECK_HR(DirectX::LoadFromWICFile(file, DirectX::WIC_FLAGS_NONE, &metadata, image));
 
 	//GPU側のテクスチャ作成(作成直後はコピー先の状態)
 	CheckHR(DirectX::CreateTexture(device, metadata, &m_resource));
