@@ -1,6 +1,6 @@
 #include "Renderer/Pipeline.h"
 
-void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat)
+void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat)
 {
 
 	//ルートパラメータ
@@ -98,7 +98,10 @@ void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT
 	blend.LogicOp = D3D12_LOGIC_OP_NOOP;
 	blend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	//0だと何も描かれない
 
-	psoDesc.DepthStencilState.DepthEnable = FALSE;		//深度なし
+	psoDesc.DSVFormat = dsvFormat;									//DepthBufferと一致
+	psoDesc.DepthStencilState.DepthEnable = TRUE;					//深度テストON
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;	//距離を書き込む
+	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;		//近い方だけ描く
 	psoDesc.DepthStencilState.StencilEnable = FALSE;
 
 	CheckHR(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)));

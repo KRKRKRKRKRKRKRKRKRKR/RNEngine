@@ -6,7 +6,7 @@ void Application::Init(HINSTANCE hInstance, int nCmdShow)
 	m_window.Init(hInstance, WIDTH, HEIGHT, L"RNEngine");
 	m_renderer.Init(m_window.GetHwnd(), WIDTH, HEIGHT);	//GPU・画面バッファ
 
-	m_pipeline.Init(m_renderer.GetDevice(), L"shaders.hlsl", m_renderer.GetFormat());	//描き方
+	m_pipeline.Init(m_renderer.GetDevice(), L"shaders.hlsl", m_renderer.GetFormat(), m_renderer.GetDepthFormat());	//描き方
 
 	m_triangleMesh.InitTriangle(m_renderer.GetDevice());	//三角形の形(1回だけ)
 	m_quadMesh.InitQuad(m_renderer.GetDevice());

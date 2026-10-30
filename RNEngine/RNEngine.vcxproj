@@ -148,6 +148,7 @@
     <ClCompile Include="Application\Application.cpp" />
     <ClCompile Include="GPU\GraphicsDevice.cpp" />
     <ClCompile Include="GPU\SwapChain.cpp" />
+    <ClCompile Include="GPU\DepthBuffer.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
     <ClCompile Include="UI\ImGuiLayer.cpp" />
     <ClCompile Include="ImGui\imgui-docking\backends\imgui_impl_dx12.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="GPU\SwapChain.h" />
+    <ClInclude Include="GPU\DepthBuffer.h" />
     <ClInclude Include="Math\Matrix.h" />
     <ClInclude Include="Math\Matrix\Matrix3x3.h" />
     <ClInclude Include="Math\Matrix\Matrix4x4.h" />

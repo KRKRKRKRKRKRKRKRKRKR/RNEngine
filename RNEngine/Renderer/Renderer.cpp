@@ -9,6 +9,7 @@ void Renderer::Init(HWND hwnd, UINT width, UINT height)
 {
 	m_gfx.Init();											//Device・Queue・Fence
 	m_swapChain.Init(m_gfx, hwnd, width, height);			//SwapChain・RTV
+	m_depthBuffer.Init(m_gfx.GetDevice(), width, height);	//画面と同じサイズ
 
 	m_viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
 	m_aspect = (float)width / (float)height;	//アスペクト比
@@ -32,9 +33,11 @@ void Renderer::BeginFrame()
 
 	//描画先セット+クリア
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_swapChain.GetCurrentRTV();
-	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);	//深度なし
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_depthBuffer.GetDSV();
+	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);	//色+深度
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };	//RGBA
 	cmd->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+	m_depthBuffer.Clear(cmd);				//距離を全部リセット
 }
 
 //シェーダーに送る定数(shaders.hlslのcbufferと一致させる)
@@ -104,6 +107,8 @@ void Renderer::Transition(ID3D12GraphicsCommandList* cmd, ID3D12Resource* resour
 }
 void Renderer::BeginUI()
 {
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_swapChain.GetCurrentRTV();
+	m_gfx.GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);	//UIは深度なし
 	m_imgui.BeginFrame();
 }
 

@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "GPU/GraphicsDevice.h"
 #include "GPU/SwapChain.h"
+#include "GPU/DepthBuffer.h"
 #include "Renderer/Pipeline.h"
 #include "Renderer/Mesh.h"
 #include "UI/ImGuiLayer.h"
@@ -30,6 +31,7 @@ public:
 
 	ID3D12Device* GetDevice() const { return m_gfx.GetDevice(); }
 	DXGI_FORMAT GetFormat() const { return m_swapChain.GetFormat(); }
+	DXGI_FORMAT GetDepthFormat() const { return m_depthBuffer.GetFormat(); }
 	GraphicsDevice& GetGraphicsDevice() { return m_gfx; }	//Texture作成用
 
 private:
@@ -38,6 +40,7 @@ private:
 
 	GraphicsDevice m_gfx;						//先に宣言(後に破棄)
 	SwapChain m_swapChain;
+	DepthBuffer m_depthBuffer;					//前後関係の判定用
 	D3D12_VIEWPORT m_viewport = {};				//描画範囲
 	D3D12_RECT m_scissorRect = {};				//切り抜き範囲
 	ImGuiLayer m_imgui;

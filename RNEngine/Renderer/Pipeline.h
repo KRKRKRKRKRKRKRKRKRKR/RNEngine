@@ -5,7 +5,7 @@
 class Pipeline
 {
 public:
-	void Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat);
+	void Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat);
 	void Set(ID3D12GraphicsCommandList* cmd) const;	//PSO+ルートシグネチャをセット
 
 private:
