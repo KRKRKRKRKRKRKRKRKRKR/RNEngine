@@ -145,7 +145,8 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application\Application.cpp" />
+    <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Game\MyGame.cpp" />
     <ClCompile Include="GPU\GraphicsDevice.cpp" />
     <ClCompile Include="GPU\SwapChain.cpp" />
     <ClCompile Include="GPU\DepthBuffer.cpp" />
@@ -175,8 +176,10 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\Application.h" />
-    <ClInclude Include="Application\GameObject.h" />
+    <ClInclude Include="Engine\Engine.h" />
+    <ClInclude Include="Engine\Game.h" />
+    <ClInclude Include="Engine\GameObject.h" />
+    <ClInclude Include="Game\MyGame.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="GPU\GraphicsDevice.h" />
     <ClInclude Include="GPU\SwapChain.h" />
