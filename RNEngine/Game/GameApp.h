@@ -23,5 +23,4 @@ private:
 	Model* m_sphere = nullptr;
 	Model* m_beetle = nullptr;				//Beatall.fbxから読んだ形
 	Sprite* m_sprite = nullptr;
-	Spinner* m_spinner = nullptr;			//GameObject(Destroy後はnullptrに戻す)
 };

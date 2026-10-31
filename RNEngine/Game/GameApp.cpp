@@ -1,6 +1,5 @@
 #include "Game/GameApp.h"
 #include "Engine/Engine.h"
-#include "Game/Spinner.h"
 #include "imgui.h"
 
 //Modelの値をいじるImGui窓(このcpp内だけ)
@@ -36,9 +35,8 @@ void GameApp::Init(Engine& engine)
 	m_beetle->transform.rotation = { 15.0f, 30.0f, 0.0f };		//斜めにして立体に見せる
 	m_beetle->transform.scale = { 0.3f, 0.3f, 0.3f };			//画面に収める(1で実寸)
 
-	m_sprite = engine.CreateSprite(texture0, { 640.0f, 360.0f }, { 256.0f, 256.0f });
+	m_sprite = engine.CreateSprite(texture0, { 128.0f, 128.0f }, { 256.0f, 256.0f });
 
-	m_spinner = engine.Spawn<Spinner>(texture1, -0.6f, 0.3f);	//出すだけ。動きと描画は自動
 }
 
 void GameApp::Update(Engine& engine, float dt)
@@ -66,25 +64,24 @@ void GameApp::DrawUI(Engine& engine)
 	ImGui::Checkbox("Visible", &m_sprite->visible);
 	ImGui::End();
 
-	ImGui::Begin("Spinner");									//Spawn/Destroyの確認
-	if (ImGui::Button("Spawn") && !m_spinner)
-	{
-		m_spinner = engine.Spawn<Spinner>(texture1, -0.6f, 0.3f);
-	}
-	if (ImGui::Button("Destroy") && m_spinner)
-	{
-		m_spinner->Destroy();									//フレームの終わりに消える
-		m_spinner = nullptr;									//以後使わない
-	}
-	ImGui::Text(m_spinner ? "alive" : "none");
-	ImGui::End();
-
 	const Input& input = engine.GetInput();
 	ImGui::Begin("Mouse");										//マウス入力の確認
 	ImGui::Text("Position %.0f, %.0f", input.GetMousePosition().x, input.GetMousePosition().y);
 	ImGui::Text("Delta    %.0f, %.0f", input.GetMouseDelta().x, input.GetMouseDelta().y);
 	ImGui::Text("Wheel    %.1f", input.GetWheel());
 	ImGui::Text("L %d  R %d  M %d", input.IsDown(VK_LBUTTON), input.IsDown(VK_RBUTTON), input.IsDown(VK_MBUTTON));
+	ImGui::End();
+
+	Camera& camera = engine.GetCamera();
+	ImGui::Begin("Camera");										//ゲームのカメラ
+	ImGui::DragFloat3("Position", &camera.transform.position.x, 0.01f);
+	ImGui::DragFloat3("Rotation", &camera.transform.rotation.x, 0.5f);	//度(x=見下ろす、y=左右を向く)
+	ImGui::DragFloat("FovY", &camera.fovY, 0.5f, 10.0f, 120.0f);
+	bool follow = camera.transform.parent != nullptr;
+	if (ImGui::Checkbox("Follow Beetle", &follow))				//親子関係の確認
+	{
+		camera.transform.parent = follow ? &m_beetle->transform : nullptr;	//位置はビートルから見た値になる
+	}
 	ImGui::End();
 
 	DebugCamera& debugCamera = engine.GetDebugCamera();
