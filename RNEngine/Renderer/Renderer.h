@@ -20,6 +20,7 @@ public:
 	~Renderer();
 
 	void Init(HWND hwnd, UINT width, UINT height);
+	void Resize(UINT width, UINT height);				//画面サイズに合わせて作り直す
 	void BeginFrame();									//記録開始+画面クリア
 	void Draw(const Pipeline& pipeline, const Mesh& mesh, const Texture& texture, const Transform& transform, const Vector4& color);	//描画命令を追加
 	void DrawSprite(const Pipeline& pipeline, const Mesh& mesh, const Texture& texture,const Transform& transform, const Vector4& color);	//ピクセル座標で描く
@@ -38,6 +39,7 @@ public:
 
 private:
 	static void Transition(ID3D12GraphicsCommandList* cmd, ID3D12Resource* resource,D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);	//バリア
+	void SetScreenSize(UINT width, UINT height);		//窓の大きさから描画範囲(ビューポート)を決める(InitとResizeで共通)
 	DirectX::XMFLOAT4X4 m_orthoProjection;		//平行投影行列(ピクセル→画面)
 
 	GraphicsDevice m_gfx;						//先に宣言(後に破棄)
@@ -48,7 +50,9 @@ private:
 	ImGuiLayer m_imgui;
 
 	Camera m_camera;							//3D用のカメラ
-	float m_aspect = 1.0f;						//画面の幅÷高さ
+	float m_aspect = 1.0f;						//ゲーム画面の幅÷高さ(固定)
+	UINT m_gameWidth = 0;						//ゲームの解像度(2Dの座標の範囲。窓の大きさとは別)
+	UINT m_gameHeight = 0;
 
 	static constexpr UINT MAX_LINE_VERTICES = 65536;	//1フレームに描ける線の頂点数(3万本強)
 	ComPtr<ID3D12Resource> m_lineBuffer;		//線の頂点(毎フレーム上書き)

@@ -11,12 +11,13 @@ void Renderer::Init(HWND hwnd, UINT width, UINT height)
 	m_swapChain.Init(m_gfx, hwnd, width, height);			//SwapChain・RTV
 	m_depthBuffer.Init(m_gfx.GetDevice(), width, height);	//画面と同じサイズ
 
-	m_viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
-	m_aspect = (float)width / (float)height;	//アスペクト比
-	m_scissorRect = { 0, 0, (LONG)width, (LONG)height };
-	m_imgui.Init(hwnd, m_gfx, m_swapChain.GetFormat(), SwapChain::FRAME_COUNT);	//UI
-	//平行投影行列(左上が(0,0)、右下が(幅,高さ))
+	m_gameWidth = width;									//最初の大きさ=ゲームの解像度(以後変わらない)
+	m_gameHeight = height;
+	m_aspect = (float)width / (float)height;				//3Dの縦横比も固定
+	//平行投影行列(左上が(0,0)、右下が(ゲームの幅,高さ))。窓の大きさに関係なく同じ
 	DirectX::XMStoreFloat4x4(&m_orthoProjection, DirectX::XMMatrixOrthographicOffCenterLH(0.0f, (float)width, (float)height, 0.0f, 0.0f, 1.0f));
+	SetScreenSize(width, height);
+	m_imgui.Init(hwnd, m_gfx, m_swapChain.GetFormat(), SwapChain::FRAME_COUNT);	//UI
 
 	//線の頂点バッファ(CPUから書けるヒープ。最大数分を最初に1回だけ作る)
 	D3D12_HEAP_PROPERTIES heapProps = {};
@@ -36,6 +37,30 @@ void Renderer::Init(HWND hwnd, UINT width, UINT height)
 
 }
 
+void Renderer::Resize(UINT width, UINT height)
+{
+	m_gfx.WaitForGPU();										//使用中のバッファは消せない
+	m_swapChain.Resize(m_gfx.GetDevice(), width, height);
+	m_depthBuffer.Init(m_gfx.GetDevice(), width, height);	//作り直し(古い方は自動で解放)
+	SetScreenSize(width, height);
+	Log::Info("Resize %ux%u", width, height);
+}
+
+//窓の中に、ゲームの縦横比を保ったまま一番大きく入る範囲を描画範囲にする(余りは黒帯)
+void Renderer::SetScreenSize(UINT width, UINT height)
+{
+	float scaleX = (float)width / m_gameWidth;			//横に何倍まで入るか
+	float scaleY = (float)height / m_gameHeight;		//縦に何倍まで入るか
+	float scale = (scaleX < scaleY) ? scaleX : scaleY;	//小さい方=はみ出さない倍率
+	float w = m_gameWidth * scale;
+	float h = m_gameHeight * scale;
+	float x = (width - w) * 0.5f;						//余りを左右(または上下)に半分ずつ
+	float y = (height - h) * 0.5f;
+
+	m_viewport = { x, y, w, h, 0.0f, 1.0f };
+	m_scissorRect = { (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) };	//範囲外には描かない
+}
+
 void Renderer::BeginFrame()
 {
 	m_gfx.ResetCommandList(nullptr);		//記録開始
@@ -51,8 +76,10 @@ void Renderer::BeginFrame()
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_swapChain.GetCurrentRTV();
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_depthBuffer.GetDSV();
 	cmd->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);	//色+深度
+	const float barColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };	//黒帯
+	cmd->ClearRenderTargetView(rtvHandle, barColor, 0, nullptr);	//窓全体
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };	//RGBA
-	cmd->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+	cmd->ClearRenderTargetView(rtvHandle, clearColor, 1, &m_scissorRect);	//ゲーム画面の部分だけ
 	m_depthBuffer.Clear(cmd);				//距離を全部リセット
 }
 

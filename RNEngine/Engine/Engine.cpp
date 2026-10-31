@@ -36,6 +36,16 @@ void Engine::Run(Game& game)
 		float dt = std::chrono::duration<float>(now - prev).count();	//前フレームからの秒
 		prev = now;
 
+		if (m_window.TakeResized() && !m_window.IsMinimized())
+		{
+			m_renderer.Resize(m_window.GetWidth(), m_window.GetHeight());	//画面サイズの資源を作り直す
+		}
+		if (m_window.IsMinimized())
+		{
+			Sleep(10);						//0x0では描けないので休む(CPUを使い切らない)
+			continue;
+		}
+
 		m_input.Update(m_window);			//このフレームのキー・マウス状態
 
 		UpdateObjects(dt);					//GameObjectを動かす

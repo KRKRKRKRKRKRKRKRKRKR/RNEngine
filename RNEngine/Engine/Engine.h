@@ -60,6 +60,10 @@ public:
 	DebugCamera& GetDebugCamera() { return m_debugCamera; }			//F1で切り替え
 	const Input& GetInput() const { return m_input; }				//キー入力(読むだけ)
 
+	void SetWindowSize(UINT width, UINT height) { m_window.SetClientSize(width, height); }	//描画範囲の大きさ(次のフレームで反映)
+	UINT GetWindowWidth() const { return m_window.GetWidth(); }
+	UINT GetWindowHeight() const { return m_window.GetHeight(); }
+
 private:
 	int AddMesh();							//空の形を一覧に追加して番号を返す
 	Model* AddModel(int mesh, int texture);	//Modelを一覧に追加

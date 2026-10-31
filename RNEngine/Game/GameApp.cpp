@@ -101,5 +101,14 @@ void GameApp::DrawUI(Engine& engine)
 	ImGui::DragFloat("Distance", &debugCamera.distance, 0.01f, 0.1f, 100.0f);
 	ImGui::End();
 
+	ImGui::Begin("Window");										//サイズ変更の確認
+	ImGui::Text("Size %u x %u", engine.GetWindowWidth(), engine.GetWindowHeight());
+	if (ImGui::Button("960x540"))   engine.SetWindowSize(960, 540);
+	ImGui::SameLine();
+	if (ImGui::Button("1280x720"))  engine.SetWindowSize(1280, 720);
+	ImGui::SameLine();
+	if (ImGui::Button("1920x1080")) engine.SetWindowSize(1920, 1080);
+	ImGui::End();
+
 	ImGui::ShowDemoWindow();									//動作確認用
 }

@@ -39,14 +39,31 @@ void SwapChain::Init(GraphicsDevice& gfx, HWND hwnd, UINT width, UINT height)
 	//RTV1個のサイズ
 	m_rtvDescriptorSize = gfx.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-	//バッファ取得+RTV作成
+	CreateRTVs(gfx.GetDevice());
+}
+
+//バッファ取得+RTV作成
+void SwapChain::CreateRTVs(ID3D12Device* device)
+{
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < FRAME_COUNT; i++)
 	{
-		CheckHR(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_renderTargets[i])));
-		gfx.GetDevice()->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
+		CHECK_HR(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_renderTargets[i])));
+		device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
 		rtvHandle.ptr += m_rtvDescriptorSize;	//次の枠へ
 	}
+}
+
+//サイズ変更
+void SwapChain::Resize(ID3D12Device* device, UINT width, UINT height)
+{
+	for (ComPtr<ID3D12Resource>& rt : m_renderTargets)
+	{
+		rt.Reset();							//古いバッファを手放す(残っているとResizeBuffersが失敗)
+	}
+	CHECK_HR(m_swapChain->ResizeBuffers(FRAME_COUNT, width, height, FORMAT, 0));	//新しいサイズで作り直し
+	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();	//番号も変わりうる
+	CreateRTVs(device);						//RTVの置き場(ヒープ)は使い回す
 }
 
 //画面に表示する

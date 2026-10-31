@@ -50,6 +50,17 @@ void Window::Show(int nCmdShow)
 	ShowWindow(m_hwnd, nCmdShow);
 }
 
+//中身の大きさを指定して変える
+void Window::SetClientSize(UINT width, UINT height)
+{
+	if (IsZoomed(m_hwnd)) ShowWindow(m_hwnd, SW_RESTORE);	//最大化中は大きさを変えられないので戻す
+
+	RECT rect = { 0, 0, (LONG)width, (LONG)height };
+	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);	//枠分を加算(Initと同じ計算)
+	SetWindowPos(m_hwnd, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top,
+		SWP_NOMOVE | SWP_NOZORDER);			//位置と重なり順はそのまま。WM_SIZEが届く
+}
+
 //メッセージ処理
 bool Window::ProcessMessages()
 {
@@ -73,6 +84,13 @@ int Window::TakeWheel()
 	return wheel;
 }
 
+bool Window::TakeResized()
+{
+	bool resized = m_resized;
+	m_resized = false;
+	return resized;
+}
+
 //メッセージ処理関数
 LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
@@ -90,6 +108,14 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		break;								//既定処理も必要
 	case WM_MOUSEWHEEL:
 		if (self) self->m_wheel += GET_WHEEL_DELTA_WPARAM(wp);	//奥=+、手前=-
+		return 0;
+	case WM_SIZE:							//サイズ変更(最小化も含む)
+		if (self)
+		{
+			self->m_width = LOWORD(lp);		//中身(枠なし)の幅
+			self->m_height = HIWORD(lp);
+			self->m_resized = true;			//作り直しはEngineがループ内で行う
+		}
 		return 0;
 	case WM_DESTROY:						//ウィンドウ破棄
 		PostQuitMessage(0);					//WM_QUITを送る
