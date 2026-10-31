@@ -5,7 +5,8 @@
 class Pipeline
 {
 public:
-	void Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat);
+	void Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat,
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE topology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);	//topology=三角形か線か
 	void Set(ID3D12GraphicsCommandList* cmd) const;	//PSO+ルートシグネチャをセット
 
 private:

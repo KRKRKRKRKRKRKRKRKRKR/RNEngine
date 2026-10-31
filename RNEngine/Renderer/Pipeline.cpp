@@ -1,6 +1,7 @@
 #include "Renderer/Pipeline.h"
 
-void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat)
+void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat,
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology)
 {
 
 	//ルートパラメータ
@@ -76,7 +77,7 @@ void Pipeline::Init(ID3D12Device* device, const wchar_t* shaderFile, DXGI_FORMAT
 	psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
 	psoDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
 	psoDesc.InputLayout = { inputLayout, _countof(inputLayout) };
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.PrimitiveTopologyType = topology;			//三角形 or 線
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = rtvFormat;					//SwapChainと一致
 	psoDesc.SampleDesc.Count = 1;

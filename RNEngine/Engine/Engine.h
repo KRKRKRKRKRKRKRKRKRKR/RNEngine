@@ -51,6 +51,11 @@ public:
 	void DrawMesh(int mesh, int texture, const Transform& transform, const Vector4& color);	//3D
 	void DrawSprite(const Vector2& position, const Vector2& size, float rotation, int texture, const Vector4& color);	//ピクセル座標(position=中心,rotation=度)
 
+	//確認用の線(そのフレームだけ表示。Update/Drawで毎フレーム呼ぶ)
+	void DrawLine(const Vector3& start, const Vector3& end, const Vector4& color);	//ワールド座標・1ピクセル幅
+	void DrawGrid(float size = 10.0f, int divisions = 10, const Vector4& color = { 0.5f, 0.5f, 0.5f, 1.0f });	//y=0の床に、中心が原点で一辺sizeの格子
+	void DrawBox(const Vector3& center, const Vector3& size, const Vector4& color);	//軸にそろった箱の枠(当たり判定の表示用)
+
 	Camera& GetCamera() { return m_camera; }						//ゲームのカメラ(動かす用)
 	DebugCamera& GetDebugCamera() { return m_debugCamera; }			//F1で切り替え
 	const Input& GetInput() const { return m_input; }				//キー入力(読むだけ)
@@ -68,6 +73,8 @@ private:
 	Input m_input;
 	Renderer m_renderer;
 	Pipeline m_pipeline;
+	Pipeline m_linePipeline;				//線用(line.hlsl・LINE)
+	std::vector<Vertex> m_lineVertices;		//このフレームのDrawLine(描いたら空にする)
 	Camera m_camera;						//ゲームのカメラ
 	DebugCamera m_debugCamera;				//マウスで見回す(enabledの間だけ使う)
 	Camera m_debugView;						//デバッグカメラの結果(ゲームのカメラを壊さない)

@@ -11,6 +11,8 @@ void Engine::Init(HINSTANCE hInstance, int nCmdShow, UINT width, UINT height, co
 	m_renderer.Init(m_window.GetHwnd(), width, height);	//GPU・画面バッファ
 
 	m_pipeline.Init(m_renderer.GetDevice(), L"shaders.hlsl", m_renderer.GetFormat(), m_renderer.GetDepthFormat());	//描き方
+	m_linePipeline.Init(m_renderer.GetDevice(), L"line.hlsl", m_renderer.GetFormat(), m_renderer.GetDepthFormat(),
+		D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);	//線の描き方
 
 	m_triangleMesh = AddMesh();
 	m_meshes[m_triangleMesh].InitTriangle(m_renderer.GetDevice());	//三角形の形
@@ -46,6 +48,8 @@ void Engine::Run(Game& game)
 		m_renderer.BeginFrame();
 		DrawModels();						//3D(自動)
 		game.Draw(*this);					//その場で描く分
+		m_renderer.DrawLines(m_linePipeline, m_lineVertices);	//溜めた線をまとめて
+		m_lineVertices.clear();				//次のフレームは空から
 		DrawSprites();						//2D(3Dより手前)
 		m_renderer.BeginUI();
 		game.DrawUI(*this);					//ImGui
@@ -162,6 +166,60 @@ void Engine::DrawSprites()
 void Engine::DrawMesh(int mesh, int texture, const Transform& transform, const Vector4& color)
 {
 	m_renderer.Draw(m_pipeline, m_meshes[mesh], m_textures[texture], transform, color);
+}
+
+void Engine::DrawLine(const Vector3& start, const Vector3& end, const Vector4& color)
+{
+	Vertex v = {};
+	v.color[0] = color.x;
+	v.color[1] = color.y;
+	v.color[2] = color.z;
+	v.color[3] = color.w;
+
+	v.position[0] = start.x;				//始点
+	v.position[1] = start.y;
+	v.position[2] = start.z;
+	m_lineVertices.push_back(v);
+
+	v.position[0] = end.x;					//終点(色は同じ)
+	v.position[1] = end.y;
+	v.position[2] = end.z;
+	m_lineVertices.push_back(v);
+}
+
+void Engine::DrawGrid(float size, int divisions, const Vector4& color)
+{
+	const float half = size * 0.5f;
+	const float step = size / divisions;					//1マスの幅
+	for (int i = 0; i <= divisions; i++)					//端の線も含めるので+1本
+	{
+		float p = -half + step * i;
+		DrawLine({ p, 0.0f, -half }, { p, 0.0f, half }, color);	//z方向の線(xをずらして並べる)
+		DrawLine({ -half, 0.0f, p }, { half, 0.0f, p }, color);	//x方向の線(zをずらして並べる)
+	}
+}
+
+void Engine::DrawBox(const Vector3& center, const Vector3& size, const Vector4& color)
+{
+	const Vector3 h = size * 0.5f;							//中心から各面までの距離
+	Vector3 c[8];											//角8個(番号のビット: 1=+x, 2=+y, 4=+z)
+	for (int i = 0; i < 8; i++)
+	{
+		c[i] = { center.x + ((i & 1) ? h.x : -h.x),
+		         center.y + ((i & 2) ? h.y : -h.y),
+		         center.z + ((i & 4) ? h.z : -h.z) };
+	}
+
+	const int edges[12][2] =								//辺12本(ビットが1つだけ違う角どうし)
+	{
+		{ 0, 1 }, { 2, 3 }, { 4, 5 }, { 6, 7 },				//x方向
+		{ 0, 2 }, { 1, 3 }, { 4, 6 }, { 5, 7 },				//y方向
+		{ 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 },				//z方向
+	};
+	for (const auto& e : edges)
+	{
+		DrawLine(c[e[0]], c[e[1]], color);
+	}
 }
 
 void Engine::DrawSprite(const Vector2& position, const Vector2& size, float rotation, int texture, const Vector4& color)

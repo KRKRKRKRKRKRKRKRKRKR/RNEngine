@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders.hlsl" />
+    <FxCompile Include="line.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Log.h">

@@ -47,6 +47,14 @@ void GameApp::Update(Engine& engine, float dt)
 void GameApp::Draw(Engine& engine)
 {
 	//その場で描く分(自動描画のModelは書かなくてよい)
+	engine.DrawLine({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });	//x軸 赤
+	engine.DrawLine({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });	//y軸 緑
+	engine.DrawLine({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f });	//z軸 青
+
+	engine.DrawGrid();														//床(10x10、1マス1)
+	Vector3 s = { m_sphere->transform.scale.x, m_sphere->transform.scale.y, m_sphere->transform.scale.z };
+	Vector3 p = { m_sphere->transform.position.x, m_sphere->transform.position.y, m_sphere->transform.position.z };
+	engine.DrawBox(p, s, { 1.0f, 1.0f, 0.0f, 1.0f });						//球を囲む箱(球は直径1×scale)
 }
 
 void GameApp::DrawUI(Engine& engine)

@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>							//std::vector
 #include "Common.h"
 #include "GPU/GraphicsDevice.h"
 #include "GPU/SwapChain.h"
@@ -22,6 +23,7 @@ public:
 	void BeginFrame();									//記録開始+画面クリア
 	void Draw(const Pipeline& pipeline, const Mesh& mesh, const Texture& texture, const Transform& transform, const Vector4& color);	//描画命令を追加
 	void DrawSprite(const Pipeline& pipeline, const Mesh& mesh, const Texture& texture,const Transform& transform, const Vector4& color);	//ピクセル座標で描く
+	void DrawLines(const Pipeline& pipeline, const std::vector<Vertex>& vertices);	//線をまとめて描く(2頂点で1本・ワールド座標)
 	void EndFrame();									//送信+表示+GPU待ち
 
 	void BeginUI();										//UI記録開始
@@ -47,6 +49,10 @@ private:
 
 	Camera m_camera;							//3D用のカメラ
 	float m_aspect = 1.0f;						//画面の幅÷高さ
+
+	static constexpr UINT MAX_LINE_VERTICES = 65536;	//1フレームに描ける線の頂点数(3万本強)
+	ComPtr<ID3D12Resource> m_lineBuffer;		//線の頂点(毎フレーム上書き)
+	Vertex* m_lineMapped = nullptr;				//m_lineBufferのCPU側の書き込み先(開きっぱなし)
 
 
 };
