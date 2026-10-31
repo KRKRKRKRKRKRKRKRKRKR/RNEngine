@@ -26,7 +26,7 @@ public:
 
 	void BeginUI();										//UI記録開始
 	void EndUI();
-	Camera& GetCamera() { return m_camera; }				//カメラを動かす用
+	void SetCamera(const Camera& camera) { m_camera = camera; }	//このフレームで使うカメラ(値をコピー)
 
 
 	ID3D12Device* GetDevice() const { return m_gfx.GetDevice(); }

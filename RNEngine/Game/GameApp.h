@@ -10,6 +10,8 @@ class GameApp : public Game
 {
 public:
 	void Init(Engine& engine) override;
+	void Update(Engine& engine, float dt) override;
+	void Draw(Engine& engine) override;
 	void DrawUI(Engine& engine) override;
 
 private:

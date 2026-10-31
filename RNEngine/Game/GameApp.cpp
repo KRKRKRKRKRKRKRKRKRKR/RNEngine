@@ -41,6 +41,16 @@ void GameApp::Init(Engine& engine)
 	m_spinner = engine.Spawn<Spinner>(texture1, -0.6f, 0.3f);	//出すだけ。動きと描画は自動
 }
 
+void GameApp::Update(Engine& engine, float dt)
+{
+	//ゲーム全体のルール(GameObjectのUpdateの後に呼ばれる)
+}
+
+void GameApp::Draw(Engine& engine)
+{
+	//その場で描く分(自動描画のModelは書かなくてよい)
+}
+
 void GameApp::DrawUI(Engine& engine)
 {
 	EditModel("Triangle0", *m_triangle0);
@@ -67,6 +77,23 @@ void GameApp::DrawUI(Engine& engine)
 		m_spinner = nullptr;									//以後使わない
 	}
 	ImGui::Text(m_spinner ? "alive" : "none");
+	ImGui::End();
+
+	const Input& input = engine.GetInput();
+	ImGui::Begin("Mouse");										//マウス入力の確認
+	ImGui::Text("Position %.0f, %.0f", input.GetMousePosition().x, input.GetMousePosition().y);
+	ImGui::Text("Delta    %.0f, %.0f", input.GetMouseDelta().x, input.GetMouseDelta().y);
+	ImGui::Text("Wheel    %.1f", input.GetWheel());
+	ImGui::Text("L %d  R %d  M %d", input.IsDown(VK_LBUTTON), input.IsDown(VK_RBUTTON), input.IsDown(VK_MBUTTON));
+	ImGui::End();
+
+	DebugCamera& debugCamera = engine.GetDebugCamera();
+	ImGui::Begin("DebugCamera");								//値の確認・直接入力
+	ImGui::Checkbox("Enabled (F1)", &debugCamera.enabled);
+	ImGui::DragFloat3("Target", &debugCamera.target.x, 0.01f);
+	ImGui::DragFloat("Yaw", &debugCamera.yaw, 0.5f);			//度
+	ImGui::DragFloat("Pitch", &debugCamera.pitch, 0.5f, -89.0f, 89.0f);
+	ImGui::DragFloat("Distance", &debugCamera.distance, 0.01f, 0.1f, 100.0f);
 	ImGui::End();
 
 	ImGui::ShowDemoWindow();									//動作確認用

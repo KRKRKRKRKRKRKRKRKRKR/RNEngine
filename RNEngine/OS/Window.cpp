@@ -41,7 +41,7 @@ void Window::Init(HINSTANCE hInstance, UINT width, UINT height, const wchar_t* t
 		CW_USEDEFAULT, CW_USEDEFAULT,		//位置はOS任せ
 		rect.right - rect.left,				//幅(枠込み)
 		rect.bottom - rect.top,				//高さ(枠込み)
-		nullptr, nullptr, hInstance, nullptr);
+		nullptr, nullptr, hInstance, this);	//thisをWM_NCCREATEで受け取る
 }
 
 //表示
@@ -66,6 +66,13 @@ bool Window::ProcessMessages()
 	return true;							//続行
 }
 
+int Window::TakeWheel()
+{
+	int wheel = m_wheel;
+	m_wheel = 0;							//次のフレームは0から
+	return wheel;
+}
+
 //メッセージ処理関数
 LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
@@ -74,8 +81,16 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 		return true;
 	}
 
+	Window* self = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);	//staticなので保存したthisを取り出す
+
 	switch (msg)
 	{
+	case WM_NCCREATE:						//最初のメッセージ
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lp)->lpCreateParams);	//thisを保存
+		break;								//既定処理も必要
+	case WM_MOUSEWHEEL:
+		if (self) self->m_wheel += GET_WHEEL_DELTA_WPARAM(wp);	//奥=+、手前=-
+		return 0;
 	case WM_DESTROY:						//ウィンドウ破棄
 		PostQuitMessage(0);					//WM_QUITを送る
 		return 0;

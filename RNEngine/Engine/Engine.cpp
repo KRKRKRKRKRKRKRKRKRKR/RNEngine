@@ -34,10 +34,14 @@ void Engine::Run(Game& game)
 		float dt = std::chrono::duration<float>(now - prev).count();	//前フレームからの秒
 		prev = now;
 
-		m_input.Update();					//このフレームのキー状態
+		m_input.Update(m_window);			//このフレームのキー・マウス状態
 
 		UpdateObjects(dt);					//GameObjectを動かす
 		game.Update(*this, dt);				//ゲーム全体のルール
+
+		if (m_input.IsPressed(VK_F1)) m_debugCamera.enabled = !m_debugCamera.enabled;	//デバッグカメラ切り替え
+		if (m_debugCamera.enabled) m_debugCamera.Update(m_debugView, m_input);
+		m_renderer.SetCamera(m_debugCamera.enabled ? m_debugView : m_camera);			//使う方を渡す
 
 		m_renderer.BeginFrame();
 		DrawModels();						//3D(自動)

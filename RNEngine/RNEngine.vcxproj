@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core\Log.cpp" />
+    <ClCompile Include="Engine\DebugCamera.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Engine\GameObject.cpp" />
     <ClCompile Include="Game\Spinner.cpp" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Log.h" />
+    <ClInclude Include="Engine\DebugCamera.h" />
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\Game.h" />
     <ClInclude Include="Engine\Model.h" />

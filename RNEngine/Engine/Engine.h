@@ -10,6 +10,7 @@
 #include "Engine/Model.h"
 #include "Engine/Sprite.h"
 #include "Engine/GameObject.h"
+#include "Engine/DebugCamera.h"
 
 class Game;
 
@@ -50,7 +51,8 @@ public:
 	void DrawMesh(int mesh, int texture, const Transform& transform, const Vector4& color);	//3D
 	void DrawSprite(const Vector2& position, const Vector2& size, float rotation, int texture, const Vector4& color);	//ピクセル座標(position=中心,rotation=度)
 
-	Camera& GetCamera() { return m_renderer.GetCamera(); }			//カメラを動かす用
+	Camera& GetCamera() { return m_camera; }						//ゲームのカメラ(動かす用)
+	DebugCamera& GetDebugCamera() { return m_debugCamera; }			//F1で切り替え
 	const Input& GetInput() const { return m_input; }				//キー入力(読むだけ)
 
 private:
@@ -66,6 +68,9 @@ private:
 	Input m_input;
 	Renderer m_renderer;
 	Pipeline m_pipeline;
+	Camera m_camera;						//ゲームのカメラ
+	DebugCamera m_debugCamera;				//マウスで見回す(enabledの間だけ使う)
+	Camera m_debugView;						//デバッグカメラの結果(ゲームのカメラを壊さない)
 	std::vector<Mesh> m_meshes;				//形の一覧
 	std::vector<Texture> m_textures;		//画像の一覧
 	int m_triangleMesh = -1;				//組み込みの三角形
