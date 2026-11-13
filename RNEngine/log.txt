@@ -1,5 +1,8 @@
 [INFO ] Start
 [INFO ] Texture load: Resource/UVChecker0.png
 [INFO ] Texture load: Resource/UVChecker1.png
+[INFO ] Texture load: Resource/white1x1.png
+[INFO ] Resize 1280x720
+[INFO ] Resize 1920x1009
 [INFO ] Resize 1280x720
 [INFO ] End
