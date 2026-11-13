@@ -9,7 +9,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	CheckHR(CoInitializeEx(nullptr, COINIT_MULTITHREADED));	//WICに必要
 	{
 		Engine engine;
-		engine.Init(hInstance, nCmdShow, 1280, 720, L"RNEngine");	//窓・GPU・組み込みの形
+		engine.Init(hInstance, nCmdShow, 1280, 720, L"LE2C_12_コジマ_リュウセイ");	//窓・GPU・組み込みの形
 		GameApp game;
 		engine.Run(game);					//ゲームの準備→ループ
 	}										//gameとengineをここで破棄(game→engineの順)

@@ -77,13 +77,14 @@ int Engine::LoadTexture(const wchar_t* file)
 }
 
 //モデルファイルを読んで、形の番号を返す(失敗は-1)
+//
 int Engine::LoadMesh(const char* file, float scale)
 {
-	std::vector<Vertex> vertices;
-	std::vector<UINT> indices;
-	if (!ModelLoader::Load(file, scale, vertices, indices)) return -1;	//理由はログ
+	std::vector<Vertex> vertices; //からの配列を2つ用意する　ModelLoaderの出力の受け皿　
+	std::vector<UINT> indices; 
+	if (!ModelLoader::Load(file, scale, vertices, indices)) return -1;	//理由はログ 
 
-	int mesh = AddMesh();
+	int mesh = AddMesh(); //GPUに置く場所を確保する
 	m_meshes[mesh].Init(m_renderer.GetDevice(), vertices.data(), (UINT)vertices.size(),
 		indices.data(), (UINT)indices.size());						//GPUへ
 	return mesh;
